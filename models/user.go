@@ -54,12 +54,14 @@ func (um *UserModel) New(username, displayname, email, password string) (user *U
 	}
 
 	defer um.Close()
-	user = new(User)
-	user.Id = bson.NewObjectId()
-	user.Username = username
-	user.DisplayName = displayname
-	user.Email = email
-	user.Password = password
+	user = &User{
+		Id:          bson.NewObjectId(),
+		Username:    username,
+		DisplayName: displayname,
+		Email:       email,
+		Password:    password,
+	}
+
 	err = um.C.Insert(user)
 
 	if err != nil {
