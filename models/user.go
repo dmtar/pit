@@ -6,26 +6,27 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
-type User struct {
-	Id          bson.ObjectId `bson:"_id"`
-	Username    string        `bson:"username"`
-	DisplayName string        `bson:"display_name"`
-	Email       string        `bson:"email"`
-	Password    string        `bson:"password"`
+type UserData struct {
+	Id          bson.ObjectId `bson:"_id" json:"id"`
+	Username    string        `bson:"username" json:"username"`
+	DisplayName string        `bson:"display_name" json:"display_name"`
+	Email       string        `bson:"email" json:"email"`
+	Password    string        `bson:"password" json:"-"`
 }
 
 type UserModel struct {
 	MgoModel
 }
 
-func InitUserModel() *UserModel {
+var User = NewUserModel()
+
+func NewUserModel() *UserModel {
 	return &UserModel{}
 }
 
-func (um *UserModel) Find(objectId string) (user *User, err error) {
+func (um *UserModel) Find(objectId string) (user *UserData, err error) {
 	if !bson.IsObjectIdHex(objectId) {
-		err = errors.New("The provided objectID is not valid!")
-		return nil, err
+		return nil, errors.New("The provided objectID is not valid!")
 	}
 
 	err = um.Connect("users")
@@ -36,17 +37,13 @@ func (um *UserModel) Find(objectId string) (user *User, err error) {
 
 	defer um.Close()
 
-	user = new(User)
+	user = new(UserData)
 	err = um.C.Find(bson.M{"_id": bson.ObjectIdHex(objectId)}).One(user)
 
-	if err != nil {
-		return nil, err
-	}
-
-	return user, nil
+	return
 }
 
-func (um *UserModel) New(username, displayname, email, password string) (user *User, err error) {
+func (um *UserModel) New(username, displayname, email, password string) (user *UserData, err error) {
 	err = um.Connect("users")
 
 	if err != nil {
@@ -54,7 +51,7 @@ func (um *UserModel) New(username, displayname, email, password string) (user *U
 	}
 
 	defer um.Close()
-	user = &User{
+	user = &UserData{
 		Id:          bson.NewObjectId(),
 		Username:    username,
 		DisplayName: displayname,
@@ -64,9 +61,19 @@ func (um *UserModel) New(username, displayname, email, password string) (user *U
 
 	err = um.C.Insert(user)
 
+	return
+}
+
+func (um *UserModel) SearchByUsername(username string) (users []*UserData, err error) {
+	users = make([]*UserData, 0)
+	err = um.Connect("users")
+
 	if err != nil {
 		return nil, err
 	}
 
-	return user, nil
+	defer um.Close()
+
+	err = um.C.Find(bson.M{"username": username}).All(&users)
+	return
 }
