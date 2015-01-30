@@ -1,10 +1,6 @@
 package models
 
-import (
-	"errors"
-
-	"gopkg.in/mgo.v2/bson"
-)
+import "gopkg.in/mgo.v2/bson"
 
 type UserData struct {
 	Id          bson.ObjectId `bson:"_id" json:"id"`
@@ -18,33 +14,27 @@ type UserModel struct {
 	MgoModel
 }
 
-var User = NewUserModel()
+var User = NewUserModel("users")
 
-func NewUserModel() *UserModel {
-	return &UserModel{}
+func NewUserModel(collection string) *UserModel {
+	um := new(UserModel)
+	um.SetCollectionName(collection)
+	return um
 }
 
 func (um *UserModel) Find(objectId string) (user *UserData, err error) {
-	if !bson.IsObjectIdHex(objectId) {
-		return nil, errors.New("The provided objectID is not valid!")
-	}
-
-	err = um.Connect("users")
+	user = new(UserData)
+	err = um.MgoFind(objectId, user)
 
 	if err != nil {
 		return nil, err
 	}
 
-	defer um.Close()
-
-	user = new(UserData)
-	err = um.C.Find(bson.M{"_id": bson.ObjectIdHex(objectId)}).One(user)
-
 	return
 }
 
-func (um *UserModel) New(username, displayname, email, password string) (user *UserData, err error) {
-	err = um.Connect("users")
+func (um *UserModel) Create(username, displayname, email, password string) (user *UserData, err error) {
+	err = um.Connect()
 
 	if err != nil {
 		return nil, err
@@ -66,7 +56,7 @@ func (um *UserModel) New(username, displayname, email, password string) (user *U
 
 func (um *UserModel) SearchByUsername(username string) (users []*UserData, err error) {
 	users = make([]*UserData, 0)
-	err = um.Connect("users")
+	err = um.Connect()
 
 	if err != nil {
 		return nil, err
