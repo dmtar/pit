@@ -11,7 +11,7 @@ import (
 var User = NewUserController()
 
 type UserController struct {
-	ApplicationController
+	BaseController
 	Model *models.UserModel
 }
 
