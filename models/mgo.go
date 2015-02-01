@@ -20,6 +20,10 @@ func (mm *MgoModel) SetCollectionName(collection string) {
 }
 
 func (mm *MgoModel) Connect() (err error) {
+	if mm.session != nil && mm.session.Ping() == nil {
+		return nil
+	}
+
 	mm.session, err = mgo.Dial("localhost")
 	if err != nil {
 		return fmt.Errorf("Can't connect to mongo, go error %v\n", err)
@@ -43,8 +47,6 @@ func (mm *MgoModel) MgoFind(objectId string, reciever interface{}) (err error) {
 	if err != nil {
 		return err
 	}
-
-	defer mm.Close()
 
 	err = mm.C.Find(bson.M{"_id": bson.ObjectIdHex(objectId)}).One(reciever)
 

@@ -1,6 +1,12 @@
 package models
 
-import "gopkg.in/mgo.v2/bson"
+import (
+	"fmt"
+
+	"github.com/dmtar/pit/lib"
+	"golang.org/x/crypto/bcrypt"
+	"gopkg.in/mgo.v2/bson"
+)
 
 type UserData struct {
 	Id          bson.ObjectId `bson:"_id" json:"id"`
@@ -33,18 +39,31 @@ func (um *UserModel) Find(objectId string) (user *UserData, err error) {
 	return
 }
 
-func (um *UserModel) Create(username, displayname, email, password string) (user *UserData, err error) {
+func (um *UserModel) Create(params lib.Params) (user *UserData, err error) {
 	err = um.Connect()
 
 	if err != nil {
 		return nil, err
 	}
 
-	defer um.Close()
+	email := params.Get("email")
+
+	user, err = um.FindByEmail(email)
+	if user.Email == email {
+		err = fmt.Errorf("The email %s is already taken!", email)
+		return nil, err
+	}
+
+	password, err := um.generatePassword(params.Get("password"))
+
+	if err != nil {
+		return nil, err
+	}
+
 	user = &UserData{
 		Id:          bson.NewObjectId(),
-		Username:    username,
-		DisplayName: displayname,
+		Username:    params.Get("username"),
+		DisplayName: params.Get("display_name"),
 		Email:       email,
 		Password:    password,
 	}
@@ -62,8 +81,42 @@ func (um *UserModel) SearchByUsername(username string) (users []*UserData, err e
 		return nil, err
 	}
 
-	defer um.Close()
-
 	err = um.C.Find(bson.M{"username": username}).All(&users)
 	return
+}
+
+func (um *UserModel) Edit(user *UserData, params lib.Params) (*UserData, error) {
+	err := um.Connect()
+
+	if err != nil {
+		return nil, err
+	}
+
+	user.DisplayName = params.Get("display_name")
+	err = um.C.UpdateId(user.Id, user)
+
+	return user, err
+}
+
+func (um *UserModel) FindByEmail(email string) (user *UserData, err error) {
+	user = new(UserData)
+	err = um.Connect()
+
+	if err != nil {
+		return nil, err
+	}
+
+	err = um.C.Find(bson.M{"email": email}).Limit(1).One(&user)
+	return
+}
+
+func (um *UserModel) generatePassword(password string) (hash string, err error) {
+	hashBytes, err := bcrypt.GenerateFromPassword([]byte(password), 10)
+
+	if err != nil {
+		return password, err
+	}
+
+	hash = string(hashBytes)
+	return hash, nil
 }

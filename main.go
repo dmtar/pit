@@ -3,11 +3,16 @@ package main
 import (
 	"net/http"
 
+	"github.com/lidashuang/goji-gzip"
 	"github.com/zenazn/goji"
 
 	"github.com/dmtar/pit/configuration"
 	"github.com/dmtar/pit/controllers"
 )
+
+func init() {
+	goji.Use(gzip.GzipHandler)
+}
 
 func main() {
 	defer goji.Serve()
