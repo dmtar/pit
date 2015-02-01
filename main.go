@@ -14,5 +14,6 @@ func main() {
 	goji.Get("/", http.FileServer(http.Dir(config.RootPath)))
 	goji.Get("/index.html", http.FileServer(http.Dir(config.RootPath)))
 	goji.Get("/assets/*", http.FileServer(http.Dir(config.RootPath)))
+	goji.Get("/js/*", http.FileServer(http.Dir(config.RootPath)))
 	goji.Handle("/*", controllers.Root())
 }
