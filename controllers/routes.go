@@ -11,5 +11,6 @@ func Root() (root *web.Mux) {
 	root.Use(middleware.SubRouter)
 	root.Use(middlewares.JSON)
 	root.Handle("/user/*", User.Routes())
+	root.Handle("/album/*", Album.Routes())
 	return
 }

@@ -16,6 +16,10 @@ type UserData struct {
 	Password    string        `bson:"password" json:"-"`
 }
 
+func NewUserData() *UserData {
+	return &UserData{}
+}
+
 type UserModel struct {
 	MgoModel
 }
@@ -29,12 +33,8 @@ func NewUserModel(collection string) *UserModel {
 }
 
 func (um *UserModel) Find(objectId string) (user *UserData, err error) {
-	user = new(UserData)
+	user = NewUserData()
 	err = um.MgoFind(objectId, user)
-
-	if err != nil {
-		return nil, err
-	}
 
 	return
 }
@@ -99,7 +99,7 @@ func (um *UserModel) Edit(user *UserData, params lib.Params) (*UserData, error) 
 }
 
 func (um *UserModel) FindByEmail(email string) (user *UserData, err error) {
-	user = new(UserData)
+	user = NewUserData()
 	err = um.Connect()
 
 	if err != nil {
