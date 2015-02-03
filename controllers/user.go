@@ -61,10 +61,10 @@ func (uc *UserController) New(c web.C, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := params.ShouldBeEmail(params.Get("email"))
+	emailErr := params.ShouldBeEmail(params.Get("email"))
 	
-	if err != nil {
-		uc.Error(w, err)
+	if emailErr != nil {
+		uc.Error(w, emailErr)
 		return
 	}
 
