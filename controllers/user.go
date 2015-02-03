@@ -55,7 +55,14 @@ func (uc *UserController) New(c web.C, w http.ResponseWriter, r *http.Request) {
 	params := c.Env["params"].(lib.Params)
 
 	err := params.Required("email", "username", "display_name", "password")
+	//TODO: Remove these duplicate if err != nil
+	if err != nil {
+		uc.Error(w, err)
+		return
+	}
 
+	err := params.ShouldBeEmail(params.Get("email"))
+	
 	if err != nil {
 		uc.Error(w, err)
 		return
