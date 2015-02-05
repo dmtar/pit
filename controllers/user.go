@@ -33,8 +33,7 @@ func (uc *UserController) Routes() (root *web.Mux) {
 }
 
 func (uc *UserController) Find(c web.C, w http.ResponseWriter, r *http.Request) {
-	user, err := uc.M.Find(c.URLParams["objectId"])
-	if err != nil {
+	if user, err := uc.M.Find(c.URLParams["objectId"]); err != nil {
 		uc.Error(w, err)
 	} else {
 		uc.Write(w, user)
@@ -42,9 +41,7 @@ func (uc *UserController) Find(c web.C, w http.ResponseWriter, r *http.Request) 
 }
 
 func (uc *UserController) SearchByUsername(c web.C, w http.ResponseWriter, r *http.Request) {
-	users, err := uc.M.SearchByUsername(c.URLParams["username"])
-
-	if err != nil {
+	if users, err := uc.M.SearchByUsername(c.URLParams["username"]); err != nil {
 		uc.Error(w, err)
 	} else {
 		uc.Write(w, users)
@@ -53,23 +50,19 @@ func (uc *UserController) SearchByUsername(c web.C, w http.ResponseWriter, r *ht
 
 func (uc *UserController) New(c web.C, w http.ResponseWriter, r *http.Request) {
 	params := c.Env["params"].(lib.Params)
+	requiredParams := []string{"email", "username", "display_name", "password"}
 
-	err := params.Required("email", "username", "display_name", "password")
-	//TODO: Remove these duplicate if err != nil
-	if err != nil {
+	if err := params.Required(requiredParams...); err != nil {
 		uc.Error(w, err)
 		return
 	}
 
-	emailErr := params.ShouldBeEmail(params.Get("email"))
-	
-	if emailErr != nil {
-		uc.Error(w, emailErr)
+	if err := params.ShouldBeEmail("email"); err != nil {
+		uc.Error(w, err)
 		return
 	}
 
-	user, err := uc.M.Create(params)
-	if err != nil {
+	if user, err := uc.M.Create(params); err != nil {
 		uc.Error(w, err)
 	} else {
 		uc.Write(w, user)
@@ -78,13 +71,14 @@ func (uc *UserController) New(c web.C, w http.ResponseWriter, r *http.Request) {
 
 func (uc *UserController) Edit(c web.C, w http.ResponseWriter, r *http.Request) {
 	user, err := uc.M.Find(c.URLParams["objectId"])
+	params := c.Env["params"].(lib.Params)
 
 	if err != nil {
 		uc.Error(w, err)
 		return
 	}
 
-	user, err = uc.M.Edit(user, c.Env["params"].(lib.Params))
+	user, err = uc.M.Edit(user, params)
 	if err != nil {
 		uc.Error(w, err)
 	} else {

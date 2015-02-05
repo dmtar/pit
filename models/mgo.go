@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/dmtar/pit/common"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 )
@@ -26,7 +27,9 @@ func (mm *MgoModel) Connect() (err error) {
 
 	mm.session, err = mgo.Dial("localhost")
 	if err != nil {
-		return fmt.Errorf("Can't connect to mongo, go error %v\n", err)
+		return common.ServerError{
+			fmt.Errorf("Can't connect to mongo, go error: %v", err),
+		}
 	}
 	mm.db = mm.session.DB("pit")
 	mm.C = mm.db.C(mm.collection)
