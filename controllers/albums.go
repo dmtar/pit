@@ -32,8 +32,7 @@ func (ac *AlbumController) Routes() (root *web.Mux) {
 }
 
 func (ac *AlbumController) Find(c web.C, w http.ResponseWriter, r *http.Request) {
-	album, err := ac.M.Find(c.URLParams["objectId"])
-	if err != nil {
+	if album, err := ac.M.Find(c.URLParams["objectId"]); err != nil {
 		ac.Error(w, err)
 	} else {
 		ac.Write(w, album)
@@ -42,16 +41,19 @@ func (ac *AlbumController) Find(c web.C, w http.ResponseWriter, r *http.Request)
 
 func (ac *AlbumController) New(c web.C, w http.ResponseWriter, r *http.Request) {
 	params := c.Env["params"].(lib.Params)
+	requiredParams := []string{
+		"name",
+		"location", "location.lat", "location.lng", "location.name",
+		"tags",
+		"date_range", "date_range.start", "date_range.end",
+	}
 
-	err := params.Required("name", "location", "tags", "date_range")
-
-	if err != nil {
+	if err := params.Required(requiredParams...); err != nil {
 		ac.Error(w, err)
 		return
 	}
 
-	album, err := ac.M.Create(params)
-	if err != nil {
+	if album, err := ac.M.Create(params); err != nil {
 		ac.Error(w, err)
 	} else {
 		ac.Write(w, album)
@@ -59,6 +61,7 @@ func (ac *AlbumController) New(c web.C, w http.ResponseWriter, r *http.Request) 
 }
 
 func (ac *AlbumController) Edit(c web.C, w http.ResponseWriter, r *http.Request) {
+	params := c.Env["params"].(lib.Params)
 	album, err := ac.M.Find(c.URLParams["objectId"])
 
 	if err != nil {
@@ -66,8 +69,7 @@ func (ac *AlbumController) Edit(c web.C, w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	album, err = ac.M.Edit(album, c.Env["params"].(lib.Params))
-	if err != nil {
+	if album, err = ac.M.Edit(album, params); err != nil {
 		ac.Error(w, err)
 	} else {
 		ac.Write(w, album)

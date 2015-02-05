@@ -3,6 +3,7 @@ package lib
 import (
 	"fmt"
 	"regexp"
+	"strings"
 )
 
 const EMAIL_REGEX string = `^([^@\s]+)@((?:[-a-z0-9]+\.)+[a-z]{2,})$`
@@ -51,7 +52,7 @@ func (p Params) GetAString(key string) []string {
 
 func (p Params) Required(keys ...string) error {
 	for _, key := range keys {
-		if _, ok := p[key]; !ok {
+		if ok := p.exists(p, key); !ok {
 			return fmt.Errorf("The parameter %s is required!", key)
 		}
 	}
@@ -66,4 +67,23 @@ func (p Params) ShouldBeEmail(key string) error {
 	}
 
 	return nil
+}
+
+func (p Params) exists(input map[string]interface{}, key string) (ok bool) {
+	if input == nil {
+		return false
+	}
+
+	if index := strings.Index(key, "."); index != -1 {
+		pair := strings.SplitN(key, ".", 2)
+		params, asserted := input[pair[0]].(map[string]interface{})
+		if !asserted {
+			return false
+		}
+		ok = p.exists(params, pair[1])
+	} else {
+		_, ok = input[key]
+	}
+
+	return
 }
