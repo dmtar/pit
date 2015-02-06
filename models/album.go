@@ -8,24 +8,6 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
-//albums = {
-//_id: 1,
-//name: 1,
-//location: {
-//lon: 1,
-//lat: 1,
-//name: 1
-//},
-//date_range: {
-//start_date: 1,
-//end_date: 1
-//},
-//public: 1,
-//num_photos: 1,
-//user: @user,
-//tags: [a,b]
-//}
-
 type AlbumData struct {
 	Id        bson.ObjectId `bson:"_id" json:"id"`
 	Name      string        `bson:"name" json:"name"`
@@ -50,20 +32,20 @@ type AlbumModel struct {
 var Album = NewAlbumModel("albums")
 
 func NewAlbumModel(collection string) *AlbumModel {
-	am := new(AlbumModel)
-	am.SetCollectionName(collection)
-	return am
+	model := new(AlbumModel)
+	model.SetCollectionName(collection)
+	return model
 }
 
-func (am *AlbumModel) Find(objectId string) (album *AlbumData, err error) {
+func (model *AlbumModel) Find(objectId string) (album *AlbumData, err error) {
 	album = new(AlbumData)
-	err = am.MgoFind(objectId, album)
+	err = model.MgoFind(objectId, album)
 
 	return
 }
 
-func (am *AlbumModel) Create(params lib.Params) (album *AlbumData, err error) {
-	err = am.Connect()
+func (model *AlbumModel) Create(params lib.Params) (album *AlbumData, err error) {
+	err = model.Connect()
 
 	if err != nil {
 		return nil, err
@@ -87,13 +69,13 @@ func (am *AlbumModel) Create(params lib.Params) (album *AlbumData, err error) {
 		User:      bson.NewObjectId(),
 	}
 
-	err = am.C.Insert(album)
+	err = model.C.Insert(album)
 
 	return
 }
 
-func (am *AlbumModel) Edit(album *AlbumData, params lib.Params) (*AlbumData, error) {
-	err := am.Connect()
+func (model *AlbumModel) Edit(album *AlbumData, params lib.Params) (*AlbumData, error) {
+	err := model.Connect()
 
 	//if err != nil {
 	//return nil, err

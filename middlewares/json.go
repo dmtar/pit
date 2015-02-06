@@ -12,9 +12,11 @@ import (
 func JSON(c *web.C, h http.Handler) http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
-		var params lib.Params
-		c.Env["paramsError"] = json.NewDecoder(r.Body).Decode(&params)
-		c.Env["params"] = params
+		if r.Header.Get("Content-Type") == "application/json" {
+			var params lib.Params
+			c.Env["ParamsError"] = json.NewDecoder(r.Body).Decode(&params)
+			c.Env["Params"] = params
+		}
 		h.ServeHTTP(w, r)
 	}
 	return http.HandlerFunc(fn)

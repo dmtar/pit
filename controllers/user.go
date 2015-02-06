@@ -3,7 +3,6 @@ package controllers
 import (
 	"net/http"
 
-	"github.com/dmtar/pit/lib"
 	"github.com/dmtar/pit/models"
 	"github.com/zenazn/goji/web"
 	gojiMiddleware "github.com/zenazn/goji/web/middleware"
@@ -22,7 +21,7 @@ func NewUserController() *UserController {
 	}
 }
 
-func (uc *UserController) Routes() (root *web.Mux) {
+func (controller *UserController) Routes() (root *web.Mux) {
 	root = web.New()
 	root.Use(gojiMiddleware.SubRouter)
 	root.Put("/new", User.New)
@@ -32,56 +31,56 @@ func (uc *UserController) Routes() (root *web.Mux) {
 	return
 }
 
-func (uc *UserController) Find(c web.C, w http.ResponseWriter, r *http.Request) {
-	if user, err := uc.M.Find(c.URLParams["objectId"]); err != nil {
-		uc.Error(w, err)
+func (controller *UserController) Find(c web.C, w http.ResponseWriter, r *http.Request) {
+	if user, err := controller.M.Find(c.URLParams["objectId"]); err != nil {
+		controller.Error(w, err)
 	} else {
-		uc.Write(w, user)
+		controller.Write(w, user)
 	}
 }
 
-func (uc *UserController) SearchByUsername(c web.C, w http.ResponseWriter, r *http.Request) {
-	if users, err := uc.M.SearchByUsername(c.URLParams["username"]); err != nil {
-		uc.Error(w, err)
+func (controller *UserController) SearchByUsername(c web.C, w http.ResponseWriter, r *http.Request) {
+	if users, err := controller.M.SearchByUsername(c.URLParams["username"]); err != nil {
+		controller.Error(w, err)
 	} else {
-		uc.Write(w, users)
+		controller.Write(w, users)
 	}
 }
 
-func (uc *UserController) New(c web.C, w http.ResponseWriter, r *http.Request) {
-	params := c.Env["params"].(lib.Params)
+func (controller *UserController) New(c web.C, w http.ResponseWriter, r *http.Request) {
+	params := controller.GetParams(c)
 	requiredParams := []string{"email", "username", "display_name", "password"}
 
 	if err := params.Required(requiredParams...); err != nil {
-		uc.Error(w, err)
+		controller.Error(w, err)
 		return
 	}
 
 	if err := params.ShouldBeEmail("email"); err != nil {
-		uc.Error(w, err)
+		controller.Error(w, err)
 		return
 	}
 
-	if user, err := uc.M.Create(params); err != nil {
-		uc.Error(w, err)
+	if user, err := controller.M.Create(params); err != nil {
+		controller.Error(w, err)
 	} else {
-		uc.Write(w, user)
+		controller.Write(w, user)
 	}
 }
 
-func (uc *UserController) Edit(c web.C, w http.ResponseWriter, r *http.Request) {
-	user, err := uc.M.Find(c.URLParams["objectId"])
-	params := c.Env["params"].(lib.Params)
+func (controller *UserController) Edit(c web.C, w http.ResponseWriter, r *http.Request) {
+	user, err := controller.M.Find(c.URLParams["objectId"])
+	params := controller.GetParams(c)
 
 	if err != nil {
-		uc.Error(w, err)
+		controller.Error(w, err)
 		return
 	}
 
-	user, err = uc.M.Edit(user, params)
+	user, err = controller.M.Edit(user, params)
 	if err != nil {
-		uc.Error(w, err)
+		controller.Error(w, err)
 	} else {
-		uc.Write(w, user)
+		controller.Write(w, user)
 	}
 }

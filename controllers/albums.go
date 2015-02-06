@@ -3,7 +3,6 @@ package controllers
 import (
 	"net/http"
 
-	"github.com/dmtar/pit/lib"
 	"github.com/dmtar/pit/models"
 	"github.com/zenazn/goji/web"
 	gojiMiddleware "github.com/zenazn/goji/web/middleware"
@@ -22,7 +21,7 @@ func NewAlbumController() *AlbumController {
 	}
 }
 
-func (ac *AlbumController) Routes() (root *web.Mux) {
+func (controller *AlbumController) Routes() (root *web.Mux) {
 	root = web.New()
 	root.Use(gojiMiddleware.SubRouter)
 	root.Put("/new", Album.New)
@@ -31,16 +30,18 @@ func (ac *AlbumController) Routes() (root *web.Mux) {
 	return
 }
 
-func (ac *AlbumController) Find(c web.C, w http.ResponseWriter, r *http.Request) {
-	if album, err := ac.M.Find(c.URLParams["objectId"]); err != nil {
-		ac.Error(w, err)
+func (controller *AlbumController) Find(c web.C, w http.ResponseWriter, r *http.Request) {
+	if album, err := controller.M.Find(c.URLParams["objectId"]); err != nil {
+		controller.Error(w, err)
 	} else {
-		ac.Write(w, album)
+		if album.Public {
+			controller.Write(w, album)
+		}
 	}
 }
 
-func (ac *AlbumController) New(c web.C, w http.ResponseWriter, r *http.Request) {
-	params := c.Env["params"].(lib.Params)
+func (controller *AlbumController) New(c web.C, w http.ResponseWriter, r *http.Request) {
+	params := controller.GetParams(c)
 	requiredParams := []string{
 		"name",
 		"location", "location.lat", "location.lng", "location.name",
@@ -49,29 +50,29 @@ func (ac *AlbumController) New(c web.C, w http.ResponseWriter, r *http.Request) 
 	}
 
 	if err := params.Required(requiredParams...); err != nil {
-		ac.Error(w, err)
+		controller.Error(w, err)
 		return
 	}
 
-	if album, err := ac.M.Create(params); err != nil {
-		ac.Error(w, err)
+	if album, err := controller.M.Create(params); err != nil {
+		controller.Error(w, err)
 	} else {
-		ac.Write(w, album)
+		controller.Write(w, album)
 	}
 }
 
-func (ac *AlbumController) Edit(c web.C, w http.ResponseWriter, r *http.Request) {
-	params := c.Env["params"].(lib.Params)
-	album, err := ac.M.Find(c.URLParams["objectId"])
+func (controller *AlbumController) Edit(c web.C, w http.ResponseWriter, r *http.Request) {
+	params := controller.GetParams(c)
+	album, err := controller.M.Find(c.URLParams["objectId"])
 
 	if err != nil {
-		ac.Error(w, err)
+		controller.Error(w, err)
 		return
 	}
 
-	if album, err = ac.M.Edit(album, params); err != nil {
-		ac.Error(w, err)
+	if album, err = controller.M.Edit(album, params); err != nil {
+		controller.Error(w, err)
 	} else {
-		ac.Write(w, album)
+		controller.Write(w, album)
 	}
 }

@@ -16,10 +16,18 @@ func init() {
 
 func main() {
 	defer goji.Serve()
+	HandleIndex()
+	HandleAssets()
+	goji.Handle("/*", controllers.Root())
+}
+
+func HandleIndex() {
 	goji.Get("/", http.FileServer(http.Dir(config.RootPath)))
 	goji.Get("/index.html", http.FileServer(http.Dir(config.RootPath)))
+}
+
+func HandleAssets() {
 	goji.Get("/assets/*", http.FileServer(http.Dir(config.RootPath)))
 	goji.Get("/js/*", http.FileServer(http.Dir(config.RootPath)))
 	goji.Get("/tpl/*", http.FileServer(http.Dir(config.RootPath)))
-	goji.Handle("/*", controllers.Root())
 }

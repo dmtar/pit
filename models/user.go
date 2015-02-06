@@ -27,20 +27,20 @@ type UserModel struct {
 var User = NewUserModel("users")
 
 func NewUserModel(collection string) *UserModel {
-	um := new(UserModel)
-	um.SetCollectionName(collection)
-	return um
+	model := new(UserModel)
+	model.SetCollectionName(collection)
+	return model
 }
 
-func (um *UserModel) Find(objectId string) (user *UserData, err error) {
+func (model *UserModel) Find(objectId string) (user *UserData, err error) {
 	user = NewUserData()
-	err = um.MgoFind(objectId, user)
+	err = model.MgoFind(objectId, user)
 
 	return
 }
 
-func (um *UserModel) Create(params lib.Params) (user *UserData, err error) {
-	err = um.Connect()
+func (model *UserModel) Create(params lib.Params) (user *UserData, err error) {
+	err = model.Connect()
 
 	if err != nil {
 		return nil, err
@@ -48,13 +48,13 @@ func (um *UserModel) Create(params lib.Params) (user *UserData, err error) {
 
 	email := params.Get("email")
 
-	user, err = um.FindByEmail(email)
+	user, err = model.FindByEmail(email)
 	if user.Email == email {
 		err = fmt.Errorf("The email %s is already taken!", email)
 		return nil, err
 	}
 
-	password, err := um.generatePassword(params.Get("password"))
+	password, err := model.generatePassword(params.Get("password"))
 
 	if err != nil {
 		return nil, err
@@ -68,49 +68,49 @@ func (um *UserModel) Create(params lib.Params) (user *UserData, err error) {
 		Password:    password,
 	}
 
-	err = um.C.Insert(user)
+	err = model.C.Insert(user)
 
 	return
 }
 
-func (um *UserModel) SearchByUsername(username string) (users []*UserData, err error) {
+func (model *UserModel) SearchByUsername(username string) (users []*UserData, err error) {
 	users = make([]*UserData, 0)
-	err = um.Connect()
+	err = model.Connect()
 
 	if err != nil {
 		return nil, err
 	}
 
-	err = um.C.Find(bson.M{"username": username}).All(&users)
+	err = model.C.Find(bson.M{"username": username}).All(&users)
 	return
 }
 
-func (um *UserModel) Edit(user *UserData, params lib.Params) (*UserData, error) {
-	err := um.Connect()
+func (model *UserModel) Edit(user *UserData, params lib.Params) (*UserData, error) {
+	err := model.Connect()
 
 	if err != nil {
 		return nil, err
 	}
 
 	user.DisplayName = params.Get("display_name")
-	err = um.C.UpdateId(user.Id, user)
+	err = model.C.UpdateId(user.Id, user)
 
 	return user, err
 }
 
-func (um *UserModel) FindByEmail(email string) (user *UserData, err error) {
+func (model *UserModel) FindByEmail(email string) (user *UserData, err error) {
 	user = NewUserData()
-	err = um.Connect()
+	err = model.Connect()
 
 	if err != nil {
 		return nil, err
 	}
 
-	err = um.C.Find(bson.M{"email": email}).Limit(1).One(&user)
+	err = model.C.Find(bson.M{"email": email}).Limit(1).One(&user)
 	return
 }
 
-func (um *UserModel) generatePassword(password string) (hash string, err error) {
+func (model *UserModel) generatePassword(password string) (hash string, err error) {
 	hashBytes, err := bcrypt.GenerateFromPassword([]byte(password), 10)
 
 	if err != nil {

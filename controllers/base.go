@@ -7,21 +7,23 @@ import (
 	"net/http"
 
 	"github.com/dmtar/pit/common"
+	"github.com/dmtar/pit/lib"
+	"github.com/zenazn/goji/web"
 )
 
 type BaseController struct{}
 
-func (bc *BaseController) Write(w http.ResponseWriter, data interface{}) {
+func (controller *BaseController) Write(w http.ResponseWriter, data interface{}) {
 	result, err := json.Marshal(data)
 
 	if err != nil {
-		bc.Error(w, common.ServerError{err})
+		controller.Error(w, common.ServerError{err})
 	} else {
 		fmt.Fprint(w, string(result))
 	}
 }
 
-func (bc *BaseController) Error(w http.ResponseWriter, err error) {
+func (controller *BaseController) Error(w http.ResponseWriter, err error) {
 
 	code := 400
 	if err.Error() == "not found" {
@@ -31,15 +33,21 @@ func (bc *BaseController) Error(w http.ResponseWriter, err error) {
 	}
 
 	w.WriteHeader(code)
-	message, _ := json.Marshal(ErrorResponse{err.Error()})
+	message, _ := json.Marshal(common.ErrorResponse{err.Error()})
 
 	fmt.Fprintf(w, string(message))
 }
 
-func (bc *BaseController) NotFound(w http.ResponseWriter) {
-	bc.Error(w, errors.New("not found"))
+func (controller *BaseController) NotFound(w http.ResponseWriter) {
+	controller.Error(w, errors.New("not found"))
 }
 
-type ErrorResponse struct {
-	Error string `json:"error"`
+func (controller *BaseController) GetParams(c web.C) (p lib.Params) {
+	p, ok := c.Env["Params"].(lib.Params)
+
+	if !ok {
+		p = lib.Params{}
+	}
+
+	return
 }
