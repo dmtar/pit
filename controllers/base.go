@@ -7,7 +7,7 @@ import (
 	"net/http"
 
 	"github.com/dmtar/pit/common"
-	"github.com/dmtar/pit/lib"
+	"github.com/dmtar/pit/system"
 	"github.com/zenazn/goji/web"
 )
 
@@ -42,11 +42,11 @@ func (controller *BaseController) NotFound(w http.ResponseWriter) {
 	controller.Error(w, errors.New("not found"))
 }
 
-func (controller *BaseController) GetParams(c web.C) (p lib.Params) {
-	p, ok := c.Env["Params"].(lib.Params)
+func (controller *BaseController) GetParams(c web.C) (p system.Params) {
+	p, ok := c.Env["Params"].(system.Params)
 
 	if !ok {
-		p = lib.Params{}
+		p = system.Params{}
 	}
 
 	return

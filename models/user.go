@@ -3,7 +3,7 @@ package models
 import (
 	"fmt"
 
-	"github.com/dmtar/pit/lib"
+	"github.com/dmtar/pit/system"
 	"golang.org/x/crypto/bcrypt"
 	"gopkg.in/mgo.v2/bson"
 )
@@ -39,7 +39,7 @@ func (model *UserModel) Find(objectId string) (user *UserData, err error) {
 	return
 }
 
-func (model *UserModel) Create(params lib.Params) (user *UserData, err error) {
+func (model *UserModel) Create(params system.Params) (user *UserData, err error) {
 	err = model.Connect()
 
 	if err != nil {
@@ -85,7 +85,7 @@ func (model *UserModel) SearchByUsername(username string) (users []*UserData, er
 	return
 }
 
-func (model *UserModel) Edit(user *UserData, params lib.Params) (*UserData, error) {
+func (model *UserModel) Edit(user *UserData, params system.Params) (*UserData, error) {
 	err := model.Connect()
 
 	if err != nil {

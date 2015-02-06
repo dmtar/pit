@@ -3,7 +3,7 @@ package models
 import (
 	"strconv"
 
-	"github.com/dmtar/pit/lib"
+	"github.com/dmtar/pit/system"
 	tagit "github.com/ndyakov/tagit/bson"
 	"gopkg.in/mgo.v2/bson"
 )
@@ -44,7 +44,7 @@ func (model *AlbumModel) Find(objectId string) (album *AlbumData, err error) {
 	return
 }
 
-func (model *AlbumModel) Create(params lib.Params) (album *AlbumData, err error) {
+func (model *AlbumModel) Create(params system.Params) (album *AlbumData, err error) {
 	err = model.Connect()
 
 	if err != nil {
@@ -74,7 +74,7 @@ func (model *AlbumModel) Create(params lib.Params) (album *AlbumData, err error)
 	return
 }
 
-func (model *AlbumModel) Edit(album *AlbumData, params lib.Params) (*AlbumData, error) {
+func (model *AlbumModel) Edit(album *AlbumData, params system.Params) (*AlbumData, error) {
 	err := model.Connect()
 
 	//if err != nil {
