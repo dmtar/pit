@@ -1,6 +1,8 @@
 package models
 
 import (
+	"errors"
+	"fmt"
 	"strconv"
 
 	"github.com/dmtar/pit/system"
@@ -51,6 +53,12 @@ func (model *AlbumModel) Create(params system.Params) (album *AlbumData, err err
 		return nil, err
 	}
 
+	user, ok := params.GetI("user").(*UserData)
+	fmt.Println(params)
+	if !ok {
+		return nil, errors.New("Missing user!")
+	}
+
 	album = &AlbumData{
 		Id:   bson.NewObjectId(),
 		Name: params.Get("name"),
@@ -66,7 +74,7 @@ func (model *AlbumModel) Create(params system.Params) (album *AlbumData, err err
 		},
 		Public:    ParseBool(params.Get("public")),
 		NumPhotos: 0,
-		User:      bson.NewObjectId(),
+		User:      user.Id,
 	}
 
 	err = model.C.Insert(album)
@@ -76,6 +84,15 @@ func (model *AlbumModel) Create(params system.Params) (album *AlbumData, err err
 
 func (model *AlbumModel) Edit(album *AlbumData, params system.Params) (*AlbumData, error) {
 	err := model.Connect()
+
+	if err != nil {
+		return nil, err
+	}
+
+	_, ok := params.GetI("user").(UserData)
+	if !ok {
+		return nil, errors.New("Missing user!")
+	}
 
 	//if err != nil {
 	//return nil, err

@@ -10,12 +10,24 @@ const EMAIL_REGEX string = `^([^@\s]+)@((?:[-a-z0-9]+\.)+[a-z]{2,})$`
 
 type Params map[string]interface{}
 
+func (p Params) Add(key string, value interface{}) {
+	p[key] = value
+}
+
 func (p Params) Get(key string) string {
 	if val, ok := p[key]; ok {
 		return fmt.Sprintf("%v", val)
 	}
 
 	return ""
+}
+
+func (p Params) GetI(key string) interface{} {
+	if val, ok := p[key]; ok {
+		return val
+	}
+
+	return nil
 }
 
 func (p Params) GetP(key string) Params {

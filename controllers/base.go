@@ -7,7 +7,9 @@ import (
 	"net/http"
 
 	"github.com/dmtar/pit/common"
+	"github.com/dmtar/pit/models"
 	"github.com/dmtar/pit/system"
+	"github.com/gorilla/sessions"
 	"github.com/zenazn/goji/web"
 )
 
@@ -50,4 +52,20 @@ func (controller *BaseController) GetParams(c web.C) (p system.Params) {
 	}
 
 	return
+}
+
+func (controller *BaseController) GetSession(c web.C) (s *sessions.Session) {
+	return c.Env["Session"].(*sessions.Session)
+}
+
+func (controller *BaseController) GetCurrentUser(c web.C) *models.UserData {
+	session := controller.GetSession(c)
+
+	if userId, ok := session.Values["UserId"].(string); ok {
+		if user, err := models.User.Find(userId); err == nil {
+			return user
+		}
+	}
+
+	return nil
 }

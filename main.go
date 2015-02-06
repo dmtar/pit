@@ -8,6 +8,7 @@ import (
 
 	"github.com/dmtar/pit/config"
 	"github.com/dmtar/pit/controllers"
+	"github.com/dmtar/pit/system"
 )
 
 func init() {
@@ -16,6 +17,9 @@ func init() {
 
 func main() {
 	defer goji.Serve()
+	app := system.Application{}
+	app.Init()
+	goji.Use(app.Session)
 	HandleIndex()
 	HandleAssets()
 	goji.Handle("/*", controllers.Root())

@@ -1,6 +1,7 @@
 package models
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/dmtar/pit/system"
@@ -37,6 +38,26 @@ func (model *UserModel) Find(objectId string) (user *UserData, err error) {
 	err = model.MgoFind(objectId, user)
 
 	return
+}
+
+func (model *UserModel) Auth(params system.Params) (user *UserData, err error) {
+	err = model.Connect()
+
+	if err != nil {
+		return nil, err
+	}
+
+	email := params.Get("email")
+	user, err = model.FindByEmail(email)
+
+	if err == nil {
+		err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(params.Get("password")))
+		if err == nil {
+			return user, nil
+		}
+	}
+
+	return nil, errors.New("User not found or password incorrect!")
 }
 
 func (model *UserModel) Create(params system.Params) (user *UserData, err error) {
