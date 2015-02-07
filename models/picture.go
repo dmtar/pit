@@ -1,7 +1,6 @@
 package models
 
 import (
-	"fmt"
 	"io"
 	"time"
 	"mime/multipart"
@@ -37,6 +36,24 @@ func NewPictureModel(prefix string) *PictureModel {
 	return model
 }
 
+func (model *PictureModel) Find(objectId string) (picture *PictureMeta, err error) {
+	//TODO: Find a way to provide the actual file also.
+	picture = NewPictureMeta()
+	err = model.MgoFind(objectId, picture)
+
+	return
+}
+
+func (model *PictureModel) Remove(objectId string) (isRemoved bool, err error) {
+	//TODO: Add some checks for valid objectId
+	err = model.Grid.RemoveId(bson.ObjectIdHex(objectId))
+	if err != nil {
+		return false, err
+	}
+
+	return true, nil
+}
+
 func (model *PictureModel) Create(params system.Params, formFile multipart.File) (picture *PictureMeta, err error) {
 	if err := model.Connect(); err != nil {
 		return nil, err
@@ -44,22 +61,25 @@ func (model *PictureModel) Create(params system.Params, formFile multipart.File)
 
 	picture = &PictureMeta{
 		Name: params.Get("name"),
+		//TODO: Check why tags are not passed correctly.
 		Tags: tagit.NewTags(params.GetAString("tags")...),
-		Album:  bson.NewObjectId(),
-		User:  bson.ObjectIdHex("user_id"),
+		User:  bson.ObjectIdHex(params.Get("user_id")),
 	}
 
-	// picture.Album = model.FindAlbumForPicture(picture)
+	pictureAlbum, err := model.FindAlbumForPicture(picture)
 
+	if err != nil {
+		return nil, err
+	}
+
+	picture.Album = pictureAlbum.Id
 	file, err := model.Grid.Create(picture.Name)
 	
 	if err != nil {
 		return nil, err
 	}
 
-	n, err := io.Copy(file, formFile)
-
-	fmt.Println(n)
+	_, err = io.Copy(file, formFile)
 
 	if err != nil {
 		return nil, err
@@ -73,4 +93,28 @@ func (model *PictureModel) Create(params system.Params, formFile multipart.File)
 	}
 
 	return
+}
+
+// func (model *PictureModel) CreateThumbnail(file *GridFile) {
+// 	//TODO: Create a thumb for the picture, save it somewhere
+// }
+
+func (model *PictureModel) FindAlbumForPicture(picture *PictureMeta) (album *AlbumData, err error){
+	//TODO: Find approriate album for the picture based on tags, date and stuff. If not insert it in the default album.
+
+	if err := model.Connect(); err != nil {
+		return nil, err
+	}
+
+	//TODO: Create the query for searching relevant album
+	query := bson.M{}
+
+	err = model.C.Find(query).One(album)
+
+	if err != nil {
+		return nil, err
+	}
+
+	//TODO: Check if there are no albums return the default one.
+	return album, err
 }
