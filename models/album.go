@@ -98,6 +98,28 @@ func (model *AlbumModel) Create(params system.Params) (album *AlbumData, err err
 	return
 }
 
+func (model *AlbumModel) GetForUser(params system.Params) (albums []*AlbumData, err error) {
+	albums = make([]*AlbumData, 0)
+	if err := model.Connect(); err != nil {
+		return nil, err
+	}
+
+	user, ok := params.GetI("user").(*UserData)
+	if !ok || user == nil {
+		return nil, errors.New("We are missing a user here!")
+	}
+
+	query := bson.M{"user": user.Id}
+
+	if ParseBool(params.Get("public")) {
+		query["public"] = true
+	}
+
+	err = model.C.Find(query).Sort("-_id").All(&albums)
+
+	return
+}
+
 func (model *AlbumModel) FindByUserAndFilters(params system.Params) (*AlbumData, error) {
 	tags, ok := params.GetI("tags").(*tagit.Tags)
 	user, ok := params.GetI("user").(*UserData)

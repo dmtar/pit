@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/dmtar/pit/models"
+	"github.com/dmtar/pit/system"
 	"github.com/zenazn/goji/web"
 	gojiMiddleware "github.com/zenazn/goji/web/middleware"
 )
@@ -25,6 +26,7 @@ func NewAlbumsController() *AlbumsController {
 func (controller *AlbumsController) Routes() (root *web.Mux) {
 	root = web.New()
 	root.Use(gojiMiddleware.SubRouter)
+	root.Get("/", Albums.GetForUser)
 	root.Put("/new", Albums.New)
 	root.Get("/:objectId", Albums.Find)
 	root.Post("/:objectId/edit", Albums.Edit)
@@ -41,6 +43,25 @@ func (controller *AlbumsController) Find(c web.C, w http.ResponseWriter, r *http
 		} else {
 			controller.Error(w, errors.New("This album is private!"))
 		}
+	}
+}
+
+func (controller *AlbumsController) GetForUser(c web.C, w http.ResponseWriter, r *http.Request) {
+	currentUser := controller.GetCurrentUser(c)
+
+	if currentUser == nil {
+		controller.Error(w, errors.New("You must be logged in to get your albums!"))
+		return
+	}
+
+	albums, err := controller.M.GetForUser(system.Params{
+		"user": currentUser,
+	})
+
+	if err != nil {
+		controller.Error(w, err)
+	} else {
+		controller.Write(w, albums)
 	}
 }
 
