@@ -10,32 +10,32 @@ import (
 	gojiMiddleware "github.com/zenazn/goji/web/middleware"
 )
 
-var User = NewUserController()
+var Users = NewUsersController()
 
-type UserController struct {
+type UsersController struct {
 	BaseController
 	M *models.UserModel
 }
 
-func NewUserController() *UserController {
-	return &UserController{
+func NewUsersController() *UsersController {
+	return &UsersController{
 		M: models.User,
 	}
 }
 
-func (controller *UserController) Routes() (root *web.Mux) {
+func (controller *UsersController) Routes() (root *web.Mux) {
 	root = web.New()
 	root.Use(gojiMiddleware.SubRouter)
-	root.Put("/new", User.New)
-	root.Get("/logout", User.Logout)
-	root.Post("/auth", User.Auth)
-	root.Post("/edit", User.Edit)
-	root.Get("/search/username/:username", User.SearchByUsername)
-	root.Get("/:objectId", User.Find)
+	root.Put("/new", Users.New)
+	root.Get("/logout", Users.Logout)
+	root.Post("/auth", Users.Auth)
+	root.Post("/edit", Users.Edit)
+	root.Get("/search/username/:username", Users.SearchByUsername)
+	root.Get("/:objectId", Users.Find)
 	return
 }
 
-func (controller *UserController) Find(c web.C, w http.ResponseWriter, r *http.Request) {
+func (controller *UsersController) Find(c web.C, w http.ResponseWriter, r *http.Request) {
 	if user, err := controller.M.Find(c.URLParams["objectId"]); err != nil {
 		controller.Error(w, err)
 	} else {
@@ -43,7 +43,7 @@ func (controller *UserController) Find(c web.C, w http.ResponseWriter, r *http.R
 	}
 }
 
-func (controller *UserController) Auth(c web.C, w http.ResponseWriter, r *http.Request) {
+func (controller *UsersController) Auth(c web.C, w http.ResponseWriter, r *http.Request) {
 	currentUser := controller.GetCurrentUser(c)
 	session := controller.GetSession(c)
 
@@ -77,7 +77,7 @@ func (controller *UserController) Auth(c web.C, w http.ResponseWriter, r *http.R
 	}
 }
 
-func (controller *UserController) SearchByUsername(c web.C, w http.ResponseWriter, r *http.Request) {
+func (controller *UsersController) SearchByUsername(c web.C, w http.ResponseWriter, r *http.Request) {
 	if users, err := controller.M.SearchByUsername(c.URLParams["username"]); err != nil {
 		controller.Error(w, err)
 	} else {
@@ -85,7 +85,7 @@ func (controller *UserController) SearchByUsername(c web.C, w http.ResponseWrite
 	}
 }
 
-func (controller *UserController) Logout(c web.C, w http.ResponseWriter, r *http.Request) {
+func (controller *UsersController) Logout(c web.C, w http.ResponseWriter, r *http.Request) {
 	session := controller.GetSession(c)
 	currentUser := controller.GetCurrentUser(c)
 
@@ -98,7 +98,7 @@ func (controller *UserController) Logout(c web.C, w http.ResponseWriter, r *http
 	session.Save(r, w)
 }
 
-func (controller *UserController) New(c web.C, w http.ResponseWriter, r *http.Request) {
+func (controller *UsersController) New(c web.C, w http.ResponseWriter, r *http.Request) {
 	params := controller.GetParams(c)
 	requiredParams := []string{"email", "username", "display_name", "password"}
 
@@ -119,7 +119,7 @@ func (controller *UserController) New(c web.C, w http.ResponseWriter, r *http.Re
 	}
 }
 
-func (controller *UserController) Edit(c web.C, w http.ResponseWriter, r *http.Request) {
+func (controller *UsersController) Edit(c web.C, w http.ResponseWriter, r *http.Request) {
 	currentUser := controller.GetCurrentUser(c)
 
 	if currentUser == nil {

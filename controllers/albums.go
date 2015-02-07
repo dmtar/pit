@@ -9,29 +9,29 @@ import (
 	gojiMiddleware "github.com/zenazn/goji/web/middleware"
 )
 
-var Album = NewAlbumController()
+var Albums = NewAlbumsController()
 
-type AlbumController struct {
+type AlbumsController struct {
 	BaseController
 	M *models.AlbumModel
 }
 
-func NewAlbumController() *AlbumController {
-	return &AlbumController{
+func NewAlbumsController() *AlbumsController {
+	return &AlbumsController{
 		M: models.Album,
 	}
 }
 
-func (controller *AlbumController) Routes() (root *web.Mux) {
+func (controller *AlbumsController) Routes() (root *web.Mux) {
 	root = web.New()
 	root.Use(gojiMiddleware.SubRouter)
-	root.Put("/new", Album.New)
-	root.Get("/:objectId", Album.Find)
-	root.Post("/:objectId/edit", Album.Edit)
+	root.Put("/new", Albums.New)
+	root.Get("/:objectId", Albums.Find)
+	root.Post("/:objectId/edit", Albums.Edit)
 	return
 }
 
-func (controller *AlbumController) Find(c web.C, w http.ResponseWriter, r *http.Request) {
+func (controller *AlbumsController) Find(c web.C, w http.ResponseWriter, r *http.Request) {
 	currentUser := controller.GetCurrentUser(c)
 	if album, err := controller.M.Find(c.URLParams["objectId"]); err != nil {
 		controller.Error(w, err)
@@ -44,7 +44,7 @@ func (controller *AlbumController) Find(c web.C, w http.ResponseWriter, r *http.
 	}
 }
 
-func (controller *AlbumController) New(c web.C, w http.ResponseWriter, r *http.Request) {
+func (controller *AlbumsController) New(c web.C, w http.ResponseWriter, r *http.Request) {
 	params := controller.GetParams(c)
 	currentUser := controller.GetCurrentUser(c)
 	requiredParams := []string{
@@ -73,7 +73,7 @@ func (controller *AlbumController) New(c web.C, w http.ResponseWriter, r *http.R
 	}
 }
 
-func (controller *AlbumController) Edit(c web.C, w http.ResponseWriter, r *http.Request) {
+func (controller *AlbumsController) Edit(c web.C, w http.ResponseWriter, r *http.Request) {
 	params := controller.GetParams(c)
 	currentUser := controller.GetCurrentUser(c)
 	requiredParams := []string{"name", "public"}
