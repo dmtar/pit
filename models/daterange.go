@@ -1,6 +1,9 @@
 package models
 
-import "time"
+import (
+	"fmt"
+	"time"
+)
 
 type DateRange struct {
 	Start time.Time `bson:"start" json:"start"`
@@ -19,4 +22,8 @@ func ParseDate(input string) time.Time {
 	}
 
 	return time
+}
+
+func (dr DateRange) String() string {
+	return fmt.Sprintf("%s - %s", dr.Start, dr.End)
 }

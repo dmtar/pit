@@ -8,6 +8,10 @@ type Location struct {
 	Name      string  `bson:"name" json:"name"`
 }
 
+func (l Location) String() string {
+	return l.Name
+}
+
 func ParseFloat64(input string) float64 {
 	if input == "" {
 		return 0

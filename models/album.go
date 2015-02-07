@@ -2,6 +2,7 @@ package models
 
 import (
 	"errors"
+	"fmt"
 	"strconv"
 
 	"github.com/dmtar/pit/system"
@@ -57,19 +58,36 @@ func (model *AlbumModel) Create(params system.Params) (album *AlbumData, err err
 		return nil, errors.New("We are missing a user here!")
 	}
 
+	dateRange := DateRange{
+		Start: ParseDate(params.GetP("date_range").Get("start")),
+		End:   ParseDate(params.GetP("date_range").Get("end")),
+	}
+
+	tags := tagit.NewTags(params.GetAString("tags")...)
+
+	location := Location{
+		Longitude: ParseFloat64(params.GetP("location").Get("lng")),
+		Latitude:  ParseFloat64(params.GetP("location").Get("lat")),
+		Name:      params.GetP("location").Get("name"),
+	}
+
+	existing, err := model.FindByUserAndFilters(system.Params{
+		"tags":      tags,
+		"dateRange": dateRange,
+		"user":      user,
+		"location":  location,
+	})
+
+	if existing != nil && existing.User == user.Id {
+		return nil, fmt.Errorf("You already have an album with tags: %s and within data_range: %s for location: %s", tags, dateRange, location)
+	}
+
 	album = &AlbumData{
-		Id:   bson.NewObjectId(),
-		Name: params.Get("name"),
-		Tags: tagit.NewTags(params.GetAString("tags")...),
-		Location: Location{
-			Longitude: ParseFloat64(params.GetP("location").Get("lng")),
-			Latitude:  ParseFloat64(params.GetP("location").Get("lat")),
-			Name:      params.GetP("location").Get("name"),
-		},
-		DateRange: DateRange{
-			Start: ParseDate(params.GetP("date_range").Get("start")),
-			End:   ParseDate(params.GetP("date_range").Get("end")),
-		},
+		Id:        bson.NewObjectId(),
+		Name:      params.Get("name"),
+		Tags:      tags,
+		Location:  location,
+		DateRange: dateRange,
 		Public:    ParseBool(params.Get("public")),
 		NumPhotos: 0,
 		User:      user.Id,
@@ -80,10 +98,39 @@ func (model *AlbumModel) Create(params system.Params) (album *AlbumData, err err
 	return
 }
 
-func (model *AlbumModel) Edit(album *AlbumData, params system.Params) (*AlbumData, error) {
-	err := model.Connect()
+func (model *AlbumModel) FindByUserAndFilters(params system.Params) (*AlbumData, error) {
+	tags, ok := params.GetI("tags").(*tagit.Tags)
+	user, ok := params.GetI("user").(*UserData)
+	dateRange, ok := params.GetI("dateRange").(DateRange)
+	location, ok := params.GetI("location").(Location)
 
-	if err != nil {
+	if !ok {
+		return nil, errors.New("Wrong input parameters for FindBy")
+	}
+
+	var err error
+	album := new(AlbumData)
+
+	if err := model.Connect(); err != nil {
+		return nil, err
+	}
+
+	query := bson.M{
+		"user":             user.Id,
+		"tags":             bson.M{"$all": tags.All()},
+		"location.name":    location.Name,
+		"date_range.start": bson.M{"$gte": dateRange.Start},
+		"date_range.end":   bson.M{"$lte": dateRange.End},
+	}
+
+	err = model.C.Find(query).One(album)
+
+	return album, err
+}
+
+func (model *AlbumModel) Edit(album *AlbumData, params system.Params) (*AlbumData, error) {
+	var err error
+	if err := model.Connect(); err != nil {
 		return nil, err
 	}
 

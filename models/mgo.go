@@ -16,42 +16,42 @@ type MgoModel struct {
 	collection string
 }
 
-func (mm *MgoModel) SetCollectionName(collection string) {
-	mm.collection = collection
+func (model *MgoModel) SetCollectionName(collection string) {
+	model.collection = collection
 }
 
-func (mm *MgoModel) Connect() (err error) {
-	if mm.session != nil && mm.session.Ping() == nil {
+func (model *MgoModel) Connect() (err error) {
+	if model.session != nil && model.session.Ping() == nil {
 		return nil
 	}
 
-	mm.session, err = mgo.Dial("localhost")
+	model.session, err = mgo.Dial("localhost")
 	if err != nil {
 		return common.ServerError{
 			fmt.Errorf("Can't connect to mongo, go error: %v", err),
 		}
 	}
-	mm.db = mm.session.DB("pit")
-	mm.C = mm.db.C(mm.collection)
+	model.db = model.session.DB("pit")
+	model.C = model.db.C(model.collection)
 	return nil
 }
 
-func (mm *MgoModel) Close() {
-	mm.session.Close()
+func (model *MgoModel) Close() {
+	model.session.Close()
 }
 
-func (mm *MgoModel) MgoFind(objectId string, reciever interface{}) (err error) {
+func (model *MgoModel) MgoFind(objectId string, reciever interface{}) (err error) {
 	if !bson.IsObjectIdHex(objectId) {
 		return errors.New("The provided objectID is not valid!")
 	}
 
-	err = mm.Connect()
+	err = model.Connect()
 
 	if err != nil {
 		return err
 	}
 
-	err = mm.C.Find(bson.M{"_id": bson.ObjectIdHex(objectId)}).One(reciever)
+	err = model.C.Find(bson.M{"_id": bson.ObjectIdHex(objectId)}).One(reciever)
 
 	return
 }
