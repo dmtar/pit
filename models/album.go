@@ -2,7 +2,6 @@ package models
 
 import (
 	"errors"
-	"fmt"
 	"strconv"
 
 	"github.com/dmtar/pit/system"
@@ -54,9 +53,8 @@ func (model *AlbumModel) Create(params system.Params) (album *AlbumData, err err
 	}
 
 	user, ok := params.GetI("user").(*UserData)
-	fmt.Println(params)
-	if !ok {
-		return nil, errors.New("Missing user!")
+	if !ok || user == nil {
+		return nil, errors.New("We are missing a user here!")
 	}
 
 	album = &AlbumData{

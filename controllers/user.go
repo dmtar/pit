@@ -29,7 +29,7 @@ func (controller *UserController) Routes() (root *web.Mux) {
 	root.Put("/new", User.New)
 	root.Get("/logout", User.Logout)
 	root.Post("/auth", User.Auth)
-	root.Post("/:objectId/edit", User.Edit)
+	root.Post("/edit", User.Edit)
 	root.Get("/search/username/:username", User.SearchByUsername)
 	root.Get("/:objectId", User.Find)
 	return
@@ -120,16 +120,16 @@ func (controller *UserController) New(c web.C, w http.ResponseWriter, r *http.Re
 }
 
 func (controller *UserController) Edit(c web.C, w http.ResponseWriter, r *http.Request) {
-	user, err := controller.M.Find(c.URLParams["objectId"])
-	params := controller.GetParams(c)
+	currentUser := controller.GetCurrentUser(c)
 
-	if err != nil {
-		controller.Error(w, err)
+	if currentUser == nil {
+		controller.Error(w, errors.New("You are not logged it!"))
 		return
 	}
+	params := controller.GetParams(c)
+	params.Add("user", currentUser)
 
-	user, err = controller.M.Edit(user, params)
-	if err != nil {
+	if user, err := controller.M.Edit(params); err != nil {
 		controller.Error(w, err)
 	} else {
 		controller.Write(w, user)

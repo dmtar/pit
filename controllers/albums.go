@@ -36,7 +36,7 @@ func (controller *AlbumController) Find(c web.C, w http.ResponseWriter, r *http.
 	if album, err := controller.M.Find(c.URLParams["objectId"]); err != nil {
 		controller.Error(w, err)
 	} else {
-		if album.Public || currentUser.Id == album.User {
+		if album.Public || currentUser != nil && currentUser.Id == album.User {
 			controller.Write(w, album)
 		} else {
 			controller.Error(w, errors.New("This album is private!"))

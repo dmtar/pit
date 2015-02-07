@@ -41,9 +41,7 @@ func (model *UserModel) Find(objectId string) (user *UserData, err error) {
 }
 
 func (model *UserModel) Auth(params system.Params) (user *UserData, err error) {
-	err = model.Connect()
-
-	if err != nil {
+	if err := model.Connect(); err != nil {
 		return nil, err
 	}
 
@@ -61,9 +59,7 @@ func (model *UserModel) Auth(params system.Params) (user *UserData, err error) {
 }
 
 func (model *UserModel) Create(params system.Params) (user *UserData, err error) {
-	err = model.Connect()
-
-	if err != nil {
+	if err := model.Connect(); err != nil {
 		return nil, err
 	}
 
@@ -96,9 +92,7 @@ func (model *UserModel) Create(params system.Params) (user *UserData, err error)
 
 func (model *UserModel) SearchByUsername(username string) (users []*UserData, err error) {
 	users = make([]*UserData, 0)
-	err = model.Connect()
-
-	if err != nil {
+	if err := model.Connect(); err != nil {
 		return nil, err
 	}
 
@@ -106,24 +100,25 @@ func (model *UserModel) SearchByUsername(username string) (users []*UserData, er
 	return
 }
 
-func (model *UserModel) Edit(user *UserData, params system.Params) (*UserData, error) {
-	err := model.Connect()
-
-	if err != nil {
+func (model *UserModel) Edit(params system.Params) (*UserData, error) {
+	if err := model.Connect(); err != nil {
 		return nil, err
 	}
 
+	user, ok := params.GetI("user").(*UserData)
+	if !ok || user == nil {
+		return nil, errors.New("We are missing a user here!")
+	}
+
 	user.DisplayName = params.Get("display_name")
-	err = model.C.UpdateId(user.Id, user)
+	err := model.C.UpdateId(user.Id, user)
 
 	return user, err
 }
 
 func (model *UserModel) FindByEmail(email string) (user *UserData, err error) {
 	user = NewUserData()
-	err = model.Connect()
-
-	if err != nil {
+	if err := model.Connect(); err != nil {
 		return nil, err
 	}
 
