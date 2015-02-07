@@ -12,5 +12,6 @@ func Root() (root *web.Mux) {
 	root.Use(system.JSON)
 	root.Handle("/user/*", User.Routes())
 	root.Handle("/album/*", Album.Routes())
+	root.Handle("/picture/*", Picture.Routes())
 	return
 }

@@ -13,11 +13,16 @@ type MgoModel struct {
 	session    *mgo.Session
 	db         *mgo.Database
 	C          *mgo.Collection
+	Grid       *mgo.GridFS
 	collection string
 }
 
 func (model *MgoModel) SetCollectionName(collection string) {
 	model.collection = collection
+}
+
+func (model *MgoModel) SetGridFSPrefix(prefix string) {
+	model.gridPrefix = prefix
 }
 
 func (model *MgoModel) Connect() (err error) {
@@ -33,6 +38,7 @@ func (model *MgoModel) Connect() (err error) {
 	}
 	model.db = model.session.DB("pit")
 	model.C = model.db.C(model.collection)
+	mm.Grid = mm.db.GridFS(model.gridPrefix)
 	return nil
 }
 
