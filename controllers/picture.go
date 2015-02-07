@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/dmtar/pit/models"
+	"github.com/dmtar/pit/system"
 	"github.com/zenazn/goji/web"
 	gojiMiddleware "github.com/zenazn/goji/web/middleware"
 )
@@ -30,11 +31,6 @@ func (controller *PictureController) Routes() (root *web.Mux) {
 }
 
 func (controller *PictureController) New(c web.C, w http.ResponseWriter, r *http.Request) {
-	params := controller.GetParams(c)
-	params = system.Params{
-		//TODO: Get the parameters from the post form and pass them to picture model
-		r.FormValue("")
-	}
 
 	file, _, err := r.FormFile("picture")
 
@@ -45,7 +41,12 @@ func (controller *PictureController) New(c web.C, w http.ResponseWriter, r *http
 	
 	defer file.Close()
 
-	if picture, err := controller.M.Create(params, file); err != nil {
+	picture, err := controller.M.Create(system.Params{
+		"name": r.FormValue("name"),
+		"tags": "tag1, tag2",
+	}, file);
+
+	if err != nil {
 		controller.Error(w, err)
 	} else {
 		controller.Write(w, picture)

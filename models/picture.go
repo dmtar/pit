@@ -3,6 +3,7 @@ package models
 import (
 	"fmt"
 	"io"
+	"time"
 	"mime/multipart"
 	"github.com/dmtar/pit/system"
 	tagit "github.com/ndyakov/tagit/bson"
@@ -19,16 +20,16 @@ type PictureMeta struct {
 }
 
 func NewPictureMeta() *PictureMeta {
-	pd := new(PictureMeta)
-	pd.Tags = tagit.NewTags()
-	return pd
+	pm := new(PictureMeta)
+	pm.Tags = tagit.NewTags()
+	return pm
 }
 
 type PictureModel struct {
 	MgoModel
 }
 
-var Picture = NewPictureModel("pit")
+var Picture = NewPictureModel("fs")
 
 func NewPictureModel(prefix string) *PictureModel {
 	model := new(PictureModel)
@@ -44,12 +45,8 @@ func (model *PictureModel) Create(params system.Params, formFile multipart.File)
 	picture = &PictureMeta{
 		Name: params.Get("name"),
 		Tags: tagit.NewTags(params.GetAString("tags")...),
-		Location: Location{
-			Longitude: ParseFloat64(params.GetP("location").Get("lng")),
-			Latitude:  ParseFloat64(params.GetP("location").Get("lat")),
-			Name:      params.GetP("location").Get("name"),
-		},
-		Date: ParseDate(params.GetP("date"))
+		Album:  bson.NewObjectId(),
+		User:  bson.NewObjectId(),
 	}
 
 	// picture.Album = model.FindAlbumForPicture(picture)
