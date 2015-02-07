@@ -8,6 +8,7 @@ import (
 	"github.com/dmtar/pit/models"
 	"github.com/zenazn/goji/web"
 	gojiMiddleware "github.com/zenazn/goji/web/middleware"
+	"gopkg.in/mgo.v2/bson"
 )
 
 var Users = NewUsersController()
@@ -32,6 +33,7 @@ func (controller *UsersController) Routes() (root *web.Mux) {
 	root.Post("/edit", Users.Edit)
 	root.Get("/search/username/:username", Users.SearchByUsername)
 	root.Get("/:objectId", Users.Find)
+	root.Get("/:objectId/albums", Users.GetAlbums)
 	return
 }
 
@@ -40,6 +42,17 @@ func (controller *UsersController) Find(c web.C, w http.ResponseWriter, r *http.
 		controller.Error(w, err)
 	} else {
 		controller.Write(w, user)
+	}
+}
+
+func (controller *UsersController) GetAlbums(c web.C, w http.ResponseWriter, r *http.Request) {
+	currentUser := controller.GetCurrentUser(c)
+	objectId := c.URLParams["objectId"]
+	public := currentUser == nil || currentUser.Id != bson.ObjectIdHex(objectId)
+	if albums, err := controller.M.GetAlbums(objectId, public); err != nil {
+		controller.Error(w, err)
+	} else {
+		controller.Write(w, albums)
 	}
 }
 

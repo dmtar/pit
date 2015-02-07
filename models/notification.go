@@ -58,10 +58,11 @@ func (model *NotificationModel) Create(params system.Params) (notification *Noti
 }
 
 func (model *NotificationModel) GetForUser(params system.Params) (notifications []*NotificationData, err error) {
-	notifications = make([]*NotificationData, 0)
 	if err := model.Connect(); err != nil {
 		return nil, err
 	}
+
+	notifications = make([]*NotificationData, 0)
 
 	user, ok := params.GetI("user").(*UserData)
 	if !ok || user == nil {
@@ -75,6 +76,10 @@ func (model *NotificationModel) GetForUser(params system.Params) (notifications 
 }
 
 func (model *NotificationModel) Delete(objectId string) error {
+	if err := model.Connect(); err != nil {
+		return err
+	}
+
 	if !bson.IsObjectIdHex(objectId) {
 		return errors.New("The provided objectId is not valid!")
 	}

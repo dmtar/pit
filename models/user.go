@@ -91,11 +91,11 @@ func (model *UserModel) Create(params system.Params) (user *UserData, err error)
 }
 
 func (model *UserModel) SearchByUsername(username string) (users []*UserData, err error) {
-	users = make([]*UserData, 0)
 	if err := model.Connect(); err != nil {
 		return nil, err
 	}
 
+	users = make([]*UserData, 0)
 	err = model.C.Find(bson.M{"username": username}).All(&users)
 	return
 }
@@ -117,13 +117,27 @@ func (model *UserModel) Edit(params system.Params) (*UserData, error) {
 }
 
 func (model *UserModel) FindByEmail(email string) (user *UserData, err error) {
-	user = NewUserData()
 	if err := model.Connect(); err != nil {
 		return nil, err
 	}
 
+	user = NewUserData()
+
 	err = model.C.Find(bson.M{"email": email}).Limit(1).One(&user)
 	return
+}
+
+func (model *UserModel) GetAlbums(objectId string, public bool) (albums []*AlbumData, err error) {
+	user, err := model.Find(objectId)
+	if err != nil {
+		return nil, err
+	}
+
+	return Album.GetForUser(system.Params{
+		"user":   user,
+		"public": public,
+	})
+
 }
 
 func (model *UserModel) generatePassword(password string) (hash string, err error) {

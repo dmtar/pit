@@ -99,10 +99,11 @@ func (model *AlbumModel) Create(params system.Params) (album *AlbumData, err err
 }
 
 func (model *AlbumModel) GetForUser(params system.Params) (albums []*AlbumData, err error) {
-	albums = make([]*AlbumData, 0)
 	if err := model.Connect(); err != nil {
 		return nil, err
 	}
+
+	albums = make([]*AlbumData, 0)
 
 	user, ok := params.GetI("user").(*UserData)
 	if !ok || user == nil {
