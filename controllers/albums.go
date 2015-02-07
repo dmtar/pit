@@ -76,9 +76,15 @@ func (controller *AlbumController) New(c web.C, w http.ResponseWriter, r *http.R
 func (controller *AlbumController) Edit(c web.C, w http.ResponseWriter, r *http.Request) {
 	params := controller.GetParams(c)
 	currentUser := controller.GetCurrentUser(c)
+	requiredParams := []string{"name", "public"}
+
+	if err := params.Required(requiredParams...); err != nil {
+		controller.Error(w, err)
+		return
+	}
 
 	if currentUser == nil {
-		controller.Error(w, errors.New("You must be logged in to create an album!"))
+		controller.Error(w, errors.New("You must be logged in to edit an album!"))
 		return
 	}
 
@@ -89,9 +95,15 @@ func (controller *AlbumController) Edit(c web.C, w http.ResponseWriter, r *http.
 		return
 	}
 
-	params.Add("user", currentUser)
+	if album.User != currentUser.Id {
+		controller.Error(w, errors.New("This album is not owned by you!"))
+		return
+	}
 
-	if album, err = controller.M.Edit(album, params); err != nil {
+	params.Add("user", currentUser)
+	params.Add("album", album)
+
+	if album, err = controller.M.Edit(params); err != nil {
 		controller.Error(w, err)
 	} else {
 		controller.Write(w, album)

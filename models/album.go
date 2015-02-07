@@ -105,7 +105,7 @@ func (model *AlbumModel) FindByUserAndFilters(params system.Params) (*AlbumData,
 	location, ok := params.GetI("location").(Location)
 
 	if !ok {
-		return nil, errors.New("Wrong input parameters for FindBy")
+		return nil, errors.New("Wrong input parameters for FindByUserAndFIlters")
 	}
 
 	var err error
@@ -128,23 +128,20 @@ func (model *AlbumModel) FindByUserAndFilters(params system.Params) (*AlbumData,
 	return album, err
 }
 
-func (model *AlbumModel) Edit(album *AlbumData, params system.Params) (*AlbumData, error) {
-	var err error
+func (model *AlbumModel) Edit(params system.Params) (*AlbumData, error) {
 	if err := model.Connect(); err != nil {
 		return nil, err
 	}
 
-	_, ok := params.GetI("user").(UserData)
+	album, ok := params.GetI("album").(*AlbumData)
 	if !ok {
-		return nil, errors.New("Missing user!")
+		return nil, errors.New("Missing album!")
 	}
 
-	//if err != nil {
-	//return nil, err
-	//}
+	album.Name = params.Get("Name")
+	album.Public = ParseBool(params.Get("public"))
 
-	//album.DisplayName = params.Get("display_name")
-	//err = am.C.UpdateId(album.Id, album)
+	err := model.C.UpdateId(album.Id, album)
 
 	return album, err
 }
