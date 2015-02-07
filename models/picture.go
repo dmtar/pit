@@ -46,7 +46,7 @@ func (model *PictureModel) Create(params system.Params, formFile multipart.File)
 		Name: params.Get("name"),
 		Tags: tagit.NewTags(params.GetAString("tags")...),
 		Album:  bson.NewObjectId(),
-		User:  bson.NewObjectId(),
+		User:  bson.ObjectIdHex("user_id"),
 	}
 
 	// picture.Album = model.FindAlbumForPicture(picture)

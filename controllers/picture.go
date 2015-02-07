@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"fmt"
+	"errors"
 	"net/http"
 
 	"github.com/dmtar/pit/models"
@@ -38,12 +39,19 @@ func (controller *PictureController) New(c web.C, w http.ResponseWriter, r *http
         fmt.Fprintln(w, err)
         return
     }
-	
+
+	currentUser := controller.GetCurrentUser(c)
+	if currentUser == nil {
+		 controller.Error(w, errors.New("You must be logged in to upload picture!"))
+		 return
+	}
+
 	defer file.Close()
 
 	picture, err := controller.M.Create(system.Params{
 		"name": r.FormValue("name"),
 		"tags": "tag1, tag2",
+		"user_id": currentUser.Id,
 	}, file);
 
 	if err != nil {
