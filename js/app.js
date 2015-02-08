@@ -29,13 +29,6 @@ $(function () {
     $.when.apply(null, deferreds).done(callback);
   };
 
-
-  app.Router = Backbone.Router.extend({
-      initialize: function () {
-        var headerView = new app.HeaderView();
-        $('header').html(headerView.render().el);
-      }
-  });
 });
 
 $(document).on("ready", function () {
