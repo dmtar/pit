@@ -40,7 +40,7 @@ func NewAlbumModel(collection string) *AlbumModel {
 }
 
 func (model *AlbumModel) Find(objectId string) (album *AlbumData, err error) {
-	album = new(AlbumData)
+	album = NewAlbumData()
 	err = model.MgoFind(objectId, album)
 
 	return
@@ -132,7 +132,7 @@ func (model *AlbumModel) FindByUserAndFilters(params system.Params) (*AlbumData,
 	}
 
 	var err error
-	album := new(AlbumData)
+	album := NewAlbumData()
 
 	if err := model.Connect(); err != nil {
 		return nil, err
@@ -167,6 +167,29 @@ func (model *AlbumModel) Edit(params system.Params) (*AlbumData, error) {
 	err := model.C.UpdateId(album.Id, album)
 
 	return album, err
+}
+
+func (model *AlbumModel) FindForPicture(picture *PictureMeta) *AlbumData {
+	if err := model.Connect(); err != nil {
+		return nil
+	}
+
+	album := NewAlbumData()
+
+	query := bson.M{
+		"user":             picture.User,
+		"tags":             bson.M{"$all": picture.Tags.All()},
+		"location.name":    picture.Location.Name,
+		"date_range.start": bson.M{"$lte": picture.Date},
+		"date_range.end":   bson.M{"$gte": picture.Date},
+	}
+
+	if err := model.C.Find(query).One(album); err != nil {
+		return nil
+	} else {
+		return album
+	}
+
 }
 
 func ParseBool(input string) bool {
