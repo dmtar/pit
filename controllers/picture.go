@@ -89,10 +89,10 @@ func (controller *PictureController) New(c web.C, w http.ResponseWriter, r *http
 
 func (controller *PictureController) Remove(c web.C, w http.ResponseWriter, r *http.Request) {
 	fmt.Println(c.URLParams["objectId"])
-	if user, err := controller.M.Remove(c.URLParams["objectId"]); err != nil {
+	if err := controller.M.Remove(c.URLParams["objectId"]); err != nil {
 		controller.Error(w, err)
 	} else {
-		controller.Write(w, user)
+		controller.Write(w, err)
 	}
 }
 

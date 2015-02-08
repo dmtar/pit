@@ -2,6 +2,7 @@ package models
 
 import (
 	"strings"
+	"errors"
 	"io"
 	"time"
 	"mime/multipart"
@@ -45,14 +46,17 @@ func (model *PictureModel) Find(objectId string) (picture *PictureMeta, err erro
 	return
 }
 
-func (model *PictureModel) Remove(objectId string) (isRemoved bool, err error) {
-	//TODO: Add some checks for valid objectId
-	err = model.Grid.RemoveId(bson.ObjectIdHex(objectId))
-	if err != nil {
-		return false, err
+func (model *PictureModel) Remove(objectId string) (err error) {
+	if !bson.IsObjectIdHex(objectId) {
+		return errors.New("The provided objectID is not valid!")
 	}
 
-	return true, nil
+	err = model.Grid.RemoveId(bson.ObjectIdHex(objectId))
+	if err != nil {
+		return errors.New("Something went wrong!")
+	}
+
+	return nil
 }
 
 func (model *PictureModel) Create(params system.Params, formFile multipart.File) (picture *PictureMeta, err error) {
