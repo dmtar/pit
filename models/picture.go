@@ -1,24 +1,25 @@
 package models
 
 import (
-	"fmt"
-	"strings"
 	"errors"
+	"fmt"
 	"io"
-	"time"
 	"mime/multipart"
+	"strings"
+	"time"
+
 	"github.com/dmtar/pit/system"
 	tagit "github.com/ndyakov/tagit/bson"
 	"gopkg.in/mgo.v2/bson"
 )
 
 type PictureMeta struct {
-	Name      string        	`bson:"name" json:"name"`
-	Tags      *tagit.Tags   	`bson:"tags" json:"tags"`
-	Location  Location      	`bson:"location" json:"location"`
-	Date 	  time.Time     	`bson:"date" json:"date"`
-	Album	  bson.ObjectId		`bson:"album" json:"album"`
-	User	  bson.ObjectId		`bson:"user" json:"user"`
+	Name     string        `bson:"name" json:"name"`
+	Tags     *tagit.Tags   `bson:"tags" json:"tags"`
+	Location Location      `bson:"location" json:"location"`
+	Date     time.Time     `bson:"date" json:"date"`
+	Album    bson.ObjectId `bson:"album" json:"album"`
+	User     bson.ObjectId `bson:"user" json:"user"`
 }
 
 func NewPictureMeta() *PictureMeta {
@@ -50,12 +51,12 @@ func (model *PictureModel) Find(objectId string) (picture *PictureMeta, err erro
 
 	file, err := model.Grid.OpenId(bson.ObjectIdHex(objectId))
 	if err != nil {
-	    return nil, errors.New("Cannot find picture with id: " + objectId)
+		return nil, errors.New("Cannot find picture with id: " + objectId)
 	}
 
 	err = file.GetMeta(&picture)
 	if err != nil {
-	    return nil, errors.New("Something went wrong!")
+		return nil, errors.New("Something went wrong!")
 	}
 
 	return
@@ -84,11 +85,11 @@ func (model *PictureModel) Create(params system.Params, formFile multipart.File)
 	}
 	fmt.Println("Creating picture meta")
 	picture = &PictureMeta{
-		Name: params.Get("name"),
-		Tags: tagit.NewTags(strings.Split(params.Get("tags"), ",")...),
+		Name:     params.Get("name"),
+		Tags:     tagit.NewTags(strings.Split(params.Get("tags"), ",")...),
 		Location: params.GetI("location").(Location),
-		Date: ParseDate(params.Get("date")),
-		User: bson.ObjectIdHex(params.Get("user_id")),
+		Date:     ParseDate(params.Get("date")),
+		User:     bson.ObjectIdHex(params.Get("user_id")),
 	}
 
 	pictureAlbum, err := model.FindAlbumForPicture(picture)
@@ -100,7 +101,7 @@ func (model *PictureModel) Create(params system.Params, formFile multipart.File)
 	picture.Album = pictureAlbum.Id
 
 	file, err := model.Grid.Create(picture.Name)
-	
+
 	if err != nil {
 		return nil, err
 	}
@@ -125,7 +126,7 @@ func (model *PictureModel) Create(params system.Params, formFile multipart.File)
 // 	//TODO: Create a thumb for the picture, save it somewhere
 // }
 
-func (model *PictureModel) FindAlbumForPicture(picture *PictureMeta) (album *AlbumData, err error){
+func (model *PictureModel) FindAlbumForPicture(picture *PictureMeta) (album *AlbumData, err error) {
 
 	q := bson.M{
 		"tags":             bson.M{"$all": picture.Tags.All()},

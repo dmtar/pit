@@ -49,7 +49,7 @@ func (model *MgoModel) Close() {
 
 func (model *MgoModel) MgoFind(objectId string, reciever interface{}) (err error) {
 	if !bson.IsObjectIdHex(objectId) {
-		return errors.New("The provided objectID is not valid!")
+		return errors.New("The provided objectId is not valid!")
 	}
 
 	err = model.Connect()

@@ -14,7 +14,7 @@ func ParseDate(input string) time.Time {
 	if input == "" {
 		return time.Time{}
 	}
-	
+
 	time, err := time.Parse(time.RFC3339, input)
 
 	if err != nil {

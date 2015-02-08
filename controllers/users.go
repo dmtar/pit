@@ -2,40 +2,49 @@ package controllers
 
 import (
 	"errors"
-	"fmt"
 	"net/http"
 
 	"github.com/dmtar/pit/models"
 	"github.com/zenazn/goji/web"
 	gojiMiddleware "github.com/zenazn/goji/web/middleware"
+	"gopkg.in/mgo.v2/bson"
 )
 
-var User = NewUserController()
+var Users = NewUsersController()
 
-type UserController struct {
+type UsersController struct {
 	BaseController
 	M *models.UserModel
 }
 
-func NewUserController() *UserController {
-	return &UserController{
+func NewUsersController() *UsersController {
+	return &UsersController{
 		M: models.User,
 	}
 }
 
-func (controller *UserController) Routes() (root *web.Mux) {
+func (controller *UsersController) Routes() (root *web.Mux) {
 	root = web.New()
 	root.Use(gojiMiddleware.SubRouter)
-	root.Put("/new", User.New)
-	root.Get("/logout", User.Logout)
-	root.Post("/auth", User.Auth)
-	root.Post("/edit", User.Edit)
-	root.Get("/search/username/:username", User.SearchByUsername)
-	root.Get("/:objectId", User.Find)
+	root.Post("/", Users.New)
+	root.Put("/:objectid", Users.Edit)
+	root.Get("/logout", Users.Logout)
+	root.Get("/me", Users.CurrentUser)
+	root.Post("/auth", Users.Auth)
+	root.Get("/search/username/:username", Users.SearchByUsername)
+	root.Get("/:objectId", Users.Find)
+	root.Get("/:objectId/albums", Users.GetAlbums)
 	return
 }
 
-func (controller *UserController) Find(c web.C, w http.ResponseWriter, r *http.Request) {
+func (controller *UsersController) CurrentUser(c web.C, w http.ResponseWriter, r *http.Request) {
+	if user := controller.GetCurrentUser(c); user == nil {
+		controller.Error(w, errors.New("You are not logged in!"))
+	} else {
+		controller.Write(w, user)
+	}
+}
+func (controller *UsersController) Find(c web.C, w http.ResponseWriter, r *http.Request) {
 	if user, err := controller.M.Find(c.URLParams["objectId"]); err != nil {
 		controller.Error(w, err)
 	} else {
@@ -43,7 +52,18 @@ func (controller *UserController) Find(c web.C, w http.ResponseWriter, r *http.R
 	}
 }
 
-func (controller *UserController) Auth(c web.C, w http.ResponseWriter, r *http.Request) {
+func (controller *UsersController) GetAlbums(c web.C, w http.ResponseWriter, r *http.Request) {
+	currentUser := controller.GetCurrentUser(c)
+	objectId := c.URLParams["objectId"]
+	public := currentUser == nil || currentUser.Id != bson.ObjectIdHex(objectId)
+	if albums, err := controller.M.GetAlbums(objectId, public); err != nil {
+		controller.Error(w, err)
+	} else {
+		controller.Write(w, albums)
+	}
+}
+
+func (controller *UsersController) Auth(c web.C, w http.ResponseWriter, r *http.Request) {
 	currentUser := controller.GetCurrentUser(c)
 	session := controller.GetSession(c)
 
@@ -69,15 +89,13 @@ func (controller *UserController) Auth(c web.C, w http.ResponseWriter, r *http.R
 	if user, err := controller.M.Auth(params); err != nil {
 		controller.Error(w, err)
 	} else {
-		fmt.Println(session.Values)
 		session.Values["UserId"] = user.Id.Hex()
 		session.Save(r, w)
-		fmt.Println(session.Values)
 		controller.Write(w, user)
 	}
 }
 
-func (controller *UserController) SearchByUsername(c web.C, w http.ResponseWriter, r *http.Request) {
+func (controller *UsersController) SearchByUsername(c web.C, w http.ResponseWriter, r *http.Request) {
 	if users, err := controller.M.SearchByUsername(c.URLParams["username"]); err != nil {
 		controller.Error(w, err)
 	} else {
@@ -85,7 +103,7 @@ func (controller *UserController) SearchByUsername(c web.C, w http.ResponseWrite
 	}
 }
 
-func (controller *UserController) Logout(c web.C, w http.ResponseWriter, r *http.Request) {
+func (controller *UsersController) Logout(c web.C, w http.ResponseWriter, r *http.Request) {
 	session := controller.GetSession(c)
 	currentUser := controller.GetCurrentUser(c)
 
@@ -98,8 +116,9 @@ func (controller *UserController) Logout(c web.C, w http.ResponseWriter, r *http
 	session.Save(r, w)
 }
 
-func (controller *UserController) New(c web.C, w http.ResponseWriter, r *http.Request) {
+func (controller *UsersController) New(c web.C, w http.ResponseWriter, r *http.Request) {
 	params := controller.GetParams(c)
+	session := controller.GetSession(c)
 	requiredParams := []string{"email", "username", "display_name", "password"}
 
 	if err := params.Required(requiredParams...); err != nil {
@@ -115,11 +134,13 @@ func (controller *UserController) New(c web.C, w http.ResponseWriter, r *http.Re
 	if user, err := controller.M.Create(params); err != nil {
 		controller.Error(w, err)
 	} else {
+		session.Values["UserId"] = user.Id.Hex()
+		session.Save(r, w)
 		controller.Write(w, user)
 	}
 }
 
-func (controller *UserController) Edit(c web.C, w http.ResponseWriter, r *http.Request) {
+func (controller *UsersController) Edit(c web.C, w http.ResponseWriter, r *http.Request) {
 	currentUser := controller.GetCurrentUser(c)
 
 	if currentUser == nil {

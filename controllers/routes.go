@@ -10,8 +10,9 @@ func Root() (root *web.Mux) {
 	root = web.New()
 	root.Use(middleware.SubRouter)
 	root.Use(system.JSON)
-	root.Handle("/user/*", User.Routes())
-	root.Handle("/album/*", Album.Routes())
-	root.Handle("/picture/*", Picture.Routes())
+	root.Handle("/users/*", Users.Routes())
+	root.Handle("/albums/*", Albums.Routes())
+	root.Handle("/pictures/*", Pictures.Routes())
+	root.Handle("/notifications/*", Notifications.Routes())
 	return
 }

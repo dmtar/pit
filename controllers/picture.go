@@ -1,10 +1,10 @@
 package controllers
 
 import (
-	"fmt"
-	"strings"
 	"errors"
+	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/dmtar/pit/models"
 	"github.com/dmtar/pit/system"
@@ -12,29 +12,29 @@ import (
 	gojiMiddleware "github.com/zenazn/goji/web/middleware"
 )
 
-var Picture = NewPictureController()
+var Pictures = NewPicturesController()
 
-type PictureController struct {
+type PicturesController struct {
 	BaseController
 	M *models.PictureModel
 }
 
-func NewPictureController() *PictureController {
-	return &PictureController{
+func NewPicturesController() *PicturesController {
+	return &PicturesController{
 		M: models.Picture,
 	}
 }
 
-func (controller *PictureController) Routes() (root *web.Mux) {
+func (controller *PicturesController) Routes() (root *web.Mux) {
 	root = web.New()
 	root.Use(gojiMiddleware.SubRouter)
-	root.Post("/new", Picture.New)
-	root.Get("/:objectId", Picture.Find)
-	root.Delete("/remove/:objectId", Picture.Remove)
+	root.Post("/new", Pictures.New)
+	root.Get("/:objectId", Pictures.Find)
+	root.Delete("/remove/:objectId", Pictures.Remove)
 	return
 }
 
-func (controller *PictureController) Find(c web.C, w http.ResponseWriter, r *http.Request) {
+func (controller *PicturesController) Find(c web.C, w http.ResponseWriter, r *http.Request) {
 	if user, err := controller.M.Find(c.URLParams["objectId"]); err != nil {
 		controller.Error(w, err)
 	} else {
@@ -42,19 +42,19 @@ func (controller *PictureController) Find(c web.C, w http.ResponseWriter, r *htt
 	}
 }
 
-func (controller *PictureController) New(c web.C, w http.ResponseWriter, r *http.Request) {
+func (controller *PicturesController) New(c web.C, w http.ResponseWriter, r *http.Request) {
 	//TODO: Check the uploaded file for size, validity, existence and stuff.
 	file, _, err := r.FormFile("picture")
 
 	if err != nil {
-        controller.Error(w, errors.New("Something is not ok with the uploaded file!"))
-        return
-    }
+		controller.Error(w, errors.New("Something is not ok with the uploaded file!"))
+		return
+	}
 
 	currentUser := controller.GetCurrentUser(c)
 	if currentUser == nil {
-		 controller.Error(w, errors.New("You must be logged in to upload picture!"))
-		 return
+		controller.Error(w, errors.New("You must be logged in to upload picture!"))
+		return
 	}
 
 	pictureName := controller.CheckPictureName(r.FormValue("name"))
@@ -67,8 +67,8 @@ func (controller *PictureController) New(c web.C, w http.ResponseWriter, r *http
 
 	pictureLocation := models.Location{
 		Longitude: models.ParseFloat64(r.FormValue("location_lng")),
-		Latitude: models.ParseFloat64(r.FormValue("location_lat")),
-		Name: r.FormValue("location_name"),
+		Latitude:  models.ParseFloat64(r.FormValue("location_lat")),
+		Name:      r.FormValue("location_name"),
 	}
 
 	formValues := system.Params{}
@@ -79,7 +79,7 @@ func (controller *PictureController) New(c web.C, w http.ResponseWriter, r *http
 	formValues.Add("location", pictureLocation)
 	formValues.Add("date", "2015-02-08T10:35:33.648Z")
 
-	picture, err := controller.M.Create(formValues, file);
+	picture, err := controller.M.Create(formValues, file)
 
 	if err != nil {
 		controller.Error(w, err)
@@ -88,7 +88,7 @@ func (controller *PictureController) New(c web.C, w http.ResponseWriter, r *http
 	}
 }
 
-func (controller *PictureController) Remove(c web.C, w http.ResponseWriter, r *http.Request) {
+func (controller *PicturesController) Remove(c web.C, w http.ResponseWriter, r *http.Request) {
 	fmt.Println(c.URLParams["objectId"])
 	if err := controller.M.Remove(c.URLParams["objectId"]); err != nil {
 		controller.Error(w, err)
@@ -97,7 +97,7 @@ func (controller *PictureController) Remove(c web.C, w http.ResponseWriter, r *h
 	}
 }
 
-func (controller *PictureController) CheckPictureName(name string) interface{} {
+func (controller *PicturesController) CheckPictureName(name string) interface{} {
 	//TODO: Check the picture name for special chars, length and stuff.
 	return name
 }
