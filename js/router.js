@@ -6,28 +6,38 @@ app.Router = Backbone.Router.extend({
     "register": "openRegisterModal",
     "profile": "openProfileModal",
     "logout": "logout",
+    "album/add": "addAlbum"
   },
 
   initialize: function () {
-    var headerView = new app.HeaderView();
-    $('header').html(headerView.render().el);
+    $('header').html(new app.HeaderView().render().el);
+    $('#main').html(new app.HomeView().render().el);
   },
 
-  openLoginModal: function(e) {
+  home: function() {
+    $('#main').html(new app.HomeView().render().el);
+  },
+
+  openLoginModal: function() {
     new app.LoginModal().render();
   },
 
-  openProfileModal: function(e) {
+  openProfileModal: function() {
     new app.ProfileModal().render();
   },
 
-  openRegisterModal: function(e) {
+  openRegisterModal: function() {
     new app.RegisterModal().render();
   },
 
-  logout: function(e) {
+  addAlbum: function() {
+    console.log("Add Album");
+  },
+
+  logout: function() {
     app.CurrentUser.logout();
     $(".message-success").text("You are now logged out!");
     $(".message-success").fadeIn(1000).fadeOut(1000);
   }
+
 });

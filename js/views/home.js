@@ -1,4 +1,4 @@
-app.HeaderView = Backbone.View.extend({
+app.HomeView = Backbone.View.extend({
 
   events: {
   },

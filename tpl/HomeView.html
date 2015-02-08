@@ -1,0 +1,5 @@
+<% if (user.id != undefined) { %>
+  <h3> Hey, <%= user.get('display_name') %>! </h3>
+<% } else { %>
+  <h3> Hey, please log in!</h3>
+<% } %>
