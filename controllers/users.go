@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"errors"
-	"fmt"
 	"net/http"
 
 	"github.com/dmtar/pit/models"
@@ -27,16 +26,24 @@ func NewUsersController() *UsersController {
 func (controller *UsersController) Routes() (root *web.Mux) {
 	root = web.New()
 	root.Use(gojiMiddleware.SubRouter)
-	root.Put("/new", Users.New)
+	root.Post("/", Users.New)
+	root.Put("/:objectid", Users.Edit)
 	root.Get("/logout", Users.Logout)
+	root.Get("/me", Users.CurrentUser)
 	root.Post("/auth", Users.Auth)
-	root.Post("/edit", Users.Edit)
 	root.Get("/search/username/:username", Users.SearchByUsername)
 	root.Get("/:objectId", Users.Find)
 	root.Get("/:objectId/albums", Users.GetAlbums)
 	return
 }
 
+func (controller *UsersController) CurrentUser(c web.C, w http.ResponseWriter, r *http.Request) {
+	if user := controller.GetCurrentUser(c); user == nil {
+		controller.Error(w, errors.New("You are not logged in!"))
+	} else {
+		controller.Write(w, user)
+	}
+}
 func (controller *UsersController) Find(c web.C, w http.ResponseWriter, r *http.Request) {
 	if user, err := controller.M.Find(c.URLParams["objectId"]); err != nil {
 		controller.Error(w, err)
@@ -82,10 +89,8 @@ func (controller *UsersController) Auth(c web.C, w http.ResponseWriter, r *http.
 	if user, err := controller.M.Auth(params); err != nil {
 		controller.Error(w, err)
 	} else {
-		fmt.Println(session.Values)
 		session.Values["UserId"] = user.Id.Hex()
 		session.Save(r, w)
-		fmt.Println(session.Values)
 		controller.Write(w, user)
 	}
 }
@@ -113,6 +118,7 @@ func (controller *UsersController) Logout(c web.C, w http.ResponseWriter, r *htt
 
 func (controller *UsersController) New(c web.C, w http.ResponseWriter, r *http.Request) {
 	params := controller.GetParams(c)
+	session := controller.GetSession(c)
 	requiredParams := []string{"email", "username", "display_name", "password"}
 
 	if err := params.Required(requiredParams...); err != nil {
@@ -128,6 +134,8 @@ func (controller *UsersController) New(c web.C, w http.ResponseWriter, r *http.R
 	if user, err := controller.M.Create(params); err != nil {
 		controller.Error(w, err)
 	} else {
+		session.Values["UserId"] = user.Id.Hex()
+		session.Save(r, w)
 		controller.Write(w, user)
 	}
 }

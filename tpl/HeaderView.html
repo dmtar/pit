@@ -9,9 +9,21 @@
          <a class="navbar-brand" href="#">Place in time</a>
       </div>
       <div class="navbar-collapse collapse">
-         <ul class="nav navbar-nav">
-            <li class="login-menu"><a href="#login">Login</a></li>
-            <li class="register-menu"><a href="#register"><i class="icon-edit icon-white"></i>Register</a></li>
+         <ul class="nav navbar-nav navbar-right">
+           <li class="divider"></li>
+           <% if (user.id == undefined) { %>
+             <li class="login-menu"><a href="#login">Login</a></li>
+             <li class="register-menu"><a href="#register"><i class="icon-edit icon-white"></i>Register</a></li>
+           <%} else {%>
+             <li class="divider"></li>
+             <li class="dropdown pull-right">
+               <a href="#me" class="dropdown-toggle" data-toggle="dropdown" role="button"><%=user.get("display_name")%></a>
+               <ul class="dropdown-menu" role="menu">
+                 <li class="logout-menu"><a href="#logout">Logout</a></li>
+               </ul>
+             </li>
+           <% } %>
+           <li class="divider"></li>
          </ul>
       </div>
    </div>
