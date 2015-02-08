@@ -37,7 +37,7 @@ $(document).on("ready", function () {
     $(".alert").hide();
 
     app.loadTemplates(
-      ["HeaderView", "HomeView"],
+      ["HeaderView", "HomeView", "PictureUploadView"],
       ["LoginModal", "RegisterModal", "ProfileModal"],
       function () {
           app.router = new app.Router();

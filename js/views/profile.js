@@ -1,4 +1,4 @@
-app.ProfileModal = Backbone.ModalView.extend({
+app.ProfileModal = Backbone.View.extend({
   title: "Profile",
 
   buttons: [{

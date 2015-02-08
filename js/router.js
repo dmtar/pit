@@ -5,6 +5,7 @@ app.Router = Backbone.Router.extend({
     "login": "openLoginModal",
     "register": "openRegisterModal",
     "profile": "openProfileModal",
+    "upload": "uploadPicture",
     "logout": "logout",
     "album/add": "addAlbum"
   },
@@ -16,6 +17,10 @@ app.Router = Backbone.Router.extend({
 
   home: function() {
     $('#main').html(new app.HomeView().render().el);
+  },
+
+  upload: function() {
+    $('#main').html(new app.PictureUploadView().render().el);
   },
 
   openLoginModal: function() {
