@@ -1,6 +1,7 @@
 package models
 
 import (
+	"fmt"
 	"strings"
 	"errors"
 	"io"
@@ -39,14 +40,32 @@ func NewPictureModel(prefix string) *PictureModel {
 }
 
 func (model *PictureModel) Find(objectId string) (picture *PictureMeta, err error) {
-	//TODO: Find a way to provide the actual file also.
-	picture = NewPictureMeta()
-	err = model.MgoFind(objectId, picture)
+	if err := model.Connect(); err != nil {
+		return nil, err
+	}
+
+	if !bson.IsObjectIdHex(objectId) {
+		return nil, errors.New("The provided objectID is not valid!")
+	}
+
+	file, err := model.Grid.OpenId(bson.ObjectIdHex(objectId))
+	if err != nil {
+	    return nil, errors.New("Cannot find picture with id: " + objectId)
+	}
+
+	err = file.GetMeta(&picture)
+	if err != nil {
+	    return nil, errors.New("Something went wrong!")
+	}
 
 	return
 }
 
 func (model *PictureModel) Remove(objectId string) (err error) {
+	if err := model.Connect(); err != nil {
+		return err
+	}
+
 	if !bson.IsObjectIdHex(objectId) {
 		return errors.New("The provided objectID is not valid!")
 	}
@@ -63,7 +82,7 @@ func (model *PictureModel) Create(params system.Params, formFile multipart.File)
 	if err := model.Connect(); err != nil {
 		return nil, err
 	}
-
+	fmt.Println("Creating picture meta")
 	picture = &PictureMeta{
 		Name: params.Get("name"),
 		Tags: tagit.NewTags(strings.Split(params.Get("tags"), ",")...),
@@ -72,14 +91,13 @@ func (model *PictureModel) Create(params system.Params, formFile multipart.File)
 		User: bson.ObjectIdHex(params.Get("user_id")),
 	}
 
-	// pictureAlbum, err := model.FindAlbumForPicture(picture)
+	pictureAlbum, err := model.FindAlbumForPicture(picture)
 
 	if err != nil {
 		return nil, err
 	}
 
-	// picture.Album = pictureAlbum.Id
-	picture.Album = bson.NewObjectId()
+	picture.Album = pictureAlbum.Id
 
 	file, err := model.Grid.Create(picture.Name)
 	
@@ -108,21 +126,31 @@ func (model *PictureModel) Create(params system.Params, formFile multipart.File)
 // }
 
 func (model *PictureModel) FindAlbumForPicture(picture *PictureMeta) (album *AlbumData, err error){
-	//TODO: Find approriate album for the picture based on tags, date and stuff. If not insert it in the default album.
 
-	if err := model.Connect(); err != nil {
-		return nil, err
+	q := bson.M{
+		"tags":             bson.M{"$all": picture.Tags.All()},
+		"date_range.start": bson.M{"$lte": picture.Date},
+		"date_range.end":   bson.M{"$gte": picture.Date},
 	}
 
-	//TODO: Create the query for searching relevant album
-	query := bson.M{}
-
-	err = model.C.Find(query).One(album)
+	model.SetCollectionName("albums")
+	query := model.C.Find(q)
+	n, err := query.Count()
 
 	if err != nil {
-		return nil, err
+		return nil, errors.New("Something went wrong!")
 	}
 
-	//TODO: Check if there are no albums return the default one.
+	if n == 0 {
+		//TODO: Create default album
+		return nil, errors.New("Cannot find album for this picture!")
+	} else {
+		err = query.One(&album)
+	}
+
+	if err != nil {
+		return nil, errors.New("Cannot find album for this picture!")
+	}
+
 	return album, nil
 }

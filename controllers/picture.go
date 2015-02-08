@@ -43,11 +43,11 @@ func (controller *PictureController) Find(c web.C, w http.ResponseWriter, r *htt
 }
 
 func (controller *PictureController) New(c web.C, w http.ResponseWriter, r *http.Request) {
-
+	//TODO: Check the uploaded file for size, validity, existence and stuff.
 	file, _, err := r.FormFile("picture")
 
 	if err != nil {
-        fmt.Fprintln(w, err)
+        controller.Error(w, errors.New("Something is not ok with the uploaded file!"))
         return
     }
 
@@ -60,6 +60,7 @@ func (controller *PictureController) New(c web.C, w http.ResponseWriter, r *http
 	pictureName := controller.CheckPictureName(r.FormValue("name"))
 	if pictureName == nil {
 		controller.Error(w, errors.New("Not correct picture name!"))
+		return
 	}
 
 	defer file.Close()
