@@ -58,6 +58,7 @@ app.LoginModal = Backbone.ModalView.extend({
 
   onHidden: function(e) {
     $(".login-error").hide();
+    Backbone.history.navigate("#");
   },
 
   postRender: function() {

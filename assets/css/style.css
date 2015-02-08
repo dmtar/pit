@@ -1,9 +1,17 @@
-#login {
-  height: 100%;
+#loading {
+  position: fixed;
   width: 100%;
-  margin: 0px;
-  padding: 0px;
-  z-index: 100;
+  height:100%;
+  display: flex;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.91);
+  top: 0;
+  z-index: 10000;
+}
+
+.spinner {
+  display: flex;
+  margin: 0 auto;
 }
 
 body {

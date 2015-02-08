@@ -1,4 +1,4 @@
-app.ProfileModal = Backbone.View.extend({
+app.ProfileModal = Backbone.ModalView.extend({
   title: "Profile",
 
   buttons: [{
@@ -58,6 +58,7 @@ app.ProfileModal = Backbone.View.extend({
 
   onHidden: function(e) {
     $(".profile-error").hide();
+    Backbone.history.history.back();
   },
 
   postRender: function() {

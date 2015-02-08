@@ -42,7 +42,7 @@ $(document).on("ready", function () {
       function () {
           app.router = new app.Router();
           Backbone.history.start();
-          $("#loading").fadeOut();
+          $("#loading").fadeOut(1000);
       }
     );
 

@@ -9,6 +9,7 @@
     <link href="/assets/bootstrap/css/bootstrap.min.css" rel="stylesheet">
     <link href="http://bootswatch.com/cosmo/bootstrap.min.css" rel="stylesheet">
     <link href="/assets/css/style.css" rel="stylesheet">
+    <link rel="stylesheet" href="http://css-spinners.com/css/spinner/three-quarters.css" type="text/css">
 
     <script src="/assets/underscore-min.js"></script>
     <script src="/assets/jquery-1.11.2.min.js"> </script>
@@ -23,12 +24,16 @@
     <script src="/js/views/home.js"></script>
     <script src="/js/views/upload.js"></script>
     <script src="/js/views/login.js"></script>
-    <script src="/js/views/register.js"></script>
     <script src="/js/views/profile.js"></script>
+    <script src="/js/views/register.js"></script>
     <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&signed_in=true"></script>
   </head>
   <body>
-    <div id="loading"><h2>Loading...</h2></div>
+    <div id="loading">
+      <div class="spinner three-quarters">
+        Loading...
+      </div>
+    </div>
     <header></header>
     <div class="well">
       <div id="messages">

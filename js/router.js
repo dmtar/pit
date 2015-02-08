@@ -5,6 +5,7 @@ app.Router = Backbone.Router.extend({
     "login": "openLoginModal",
     "register": "openRegisterModal",
     "profile": "openProfileModal",
+    "me": "openProfileModal",
     "logout": "logout",
     "album/add": "addAlbum",
     "picture/upload": "uploadPicture",
@@ -42,6 +43,7 @@ app.Router = Backbone.Router.extend({
 
   logout: function() {
     app.CurrentUser.logout();
+    Backbone.history.navigate("#");
     $(".message-success").text("You are now logged out!");
     $(".message-success").fadeIn(1000).fadeOut(1000);
   }
