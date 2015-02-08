@@ -1,6 +1,7 @@
 package models
 
 import (
+	"strings"
 	"io"
 	"time"
 	"mime/multipart"
@@ -61,18 +62,21 @@ func (model *PictureModel) Create(params system.Params, formFile multipart.File)
 
 	picture = &PictureMeta{
 		Name: params.Get("name"),
-		//TODO: Check why tags are not passed correctly.
-		Tags: tagit.NewTags(params.GetAString("tags")...),
-		User:  bson.ObjectIdHex(params.Get("user_id")),
+		Tags: tagit.NewTags(strings.Split(params.Get("tags"), ",")...),
+		Location: params.GetI("location").(Location),
+		Date: ParseDate(params.Get("date")),
+		User: bson.ObjectIdHex(params.Get("user_id")),
 	}
 
-	pictureAlbum, err := model.FindAlbumForPicture(picture)
+	// pictureAlbum, err := model.FindAlbumForPicture(picture)
 
 	if err != nil {
 		return nil, err
 	}
 
-	picture.Album = pictureAlbum.Id
+	// picture.Album = pictureAlbum.Id
+	picture.Album = bson.NewObjectId()
+
 	file, err := model.Grid.Create(picture.Name)
 	
 	if err != nil {
@@ -116,5 +120,5 @@ func (model *PictureModel) FindAlbumForPicture(picture *PictureMeta) (album *Alb
 	}
 
 	//TODO: Check if there are no albums return the default one.
-	return album, err
+	return album, nil
 }

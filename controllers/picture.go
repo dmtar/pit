@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"fmt"
+	"strings"
 	"errors"
 	"net/http"
 
@@ -63,11 +64,21 @@ func (controller *PictureController) New(c web.C, w http.ResponseWriter, r *http
 
 	defer file.Close()
 
-	picture, err := controller.M.Create(system.Params{
-		"name": pictureName,
-		"tags": "tag1, tag2",
-		"user_id": currentUser.Id,
-	}, file);
+	pictureLocation := models.Location{
+		Longitude: models.ParseFloat64(r.FormValue("location_lng")),
+		Latitude: models.ParseFloat64(r.FormValue("location_lat")),
+		Name: r.FormValue("location_name"),
+	}
+
+	formValues := system.Params{}
+
+	formValues.Add("name", pictureName)
+	formValues.Add("tags", strings.TrimSpace(r.FormValue("tags")))
+	formValues.Add("user_id", currentUser.Id.Hex())
+	formValues.Add("location", pictureLocation)
+	formValues.Add("date", "2015-02-08T10:35:33.648Z")
+
+	picture, err := controller.M.Create(formValues, file);
 
 	if err != nil {
 		controller.Error(w, err)
