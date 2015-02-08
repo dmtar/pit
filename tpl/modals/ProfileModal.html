@@ -1,0 +1,24 @@
+<div>
+  <div class="profile-error alert alert-danger"></div>
+  <form id="profile-form" class="form-horizontal">
+    <div class="form-group">
+      <label for="profileUsername" class="col-sm-2 control-label">Username</label>
+      <div class="col-sm-10">
+        <input type="text" name="profileUsername" value="<%=user.get('username')%>" class="form-control" id="profileUsername" disabled/>
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="profileDisplayName" class="col-sm-2 control-label">Full Name</label>
+      <div class="col-sm-10">
+        <input type="text" name="profileDisplayName" value="<%=user.get('display_name')%>" class="form-control" id="profileDisplayName" placeholder="Full Name" required/>
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="profileEmail" class="col-sm-2 control-label">Email</label>
+      <div class="col-sm-10">
+        <input type="email" value="<%=user.get('email')%>" name="profileEmail" class="form-control" id="profileEmail" disabled/>
+      </div>
+    </div>
+    <input type="submit" id="profile-form-submit" style="display:none" />
+  </form>
+</div>

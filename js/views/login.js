@@ -47,6 +47,7 @@ app.LoginModal = Backbone.ModalView.extend({
 
     success: function(data) {
       $(".login-form-ok").attr("disabled", "disabled");
+
       this.close();
       $(".message-success").text("You are now logged in!");
       $(".message-success").fadeIn(1000).fadeOut(1000);

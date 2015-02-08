@@ -3,6 +3,7 @@ app.HeaderView = Backbone.View.extend({
     events: {
       "click .login-menu": "openLoginModal",
       "click .register-menu": "openRegisterModal",
+      "click .profile-menu": "openProfileModal",
       "click .logout-menu": "logout",
     },
 
@@ -17,6 +18,10 @@ app.HeaderView = Backbone.View.extend({
 
     openLoginModal: function(e) {
       new app.LoginModal().render();
+    },
+
+    openProfileModal: function(e) {
+      new app.ProfileModal().render();
     },
 
     openRegisterModal: function(e) {

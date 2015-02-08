@@ -19,7 +19,7 @@ $(function () {
     $.each(modalViews, function(index, view) {
         if (app[view]) {
             deferreds.push($.get('tpl/modals/' + view + '.html', function(data) {
-                app[view].prototype.body = _.template(data)({user: app.CurrentUser});
+                app[view].prototype.body_template = _.template(data);
             }, 'html'));
         } else {
             alert(view + " not found");
@@ -45,7 +45,7 @@ $(document).on("ready", function () {
 
     app.loadTemplates(
       ["HeaderView"],
-      ["LoginModal", "RegisterModal"],
+      ["LoginModal", "RegisterModal", "ProfileModal"],
       function () {
           app.router = new app.Router();
           Backbone.history.start();

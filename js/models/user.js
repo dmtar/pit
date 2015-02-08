@@ -41,6 +41,20 @@ app.UserModel = Backbone.Model.extend({
     });
   },
 
+  update: function(callbacks) {
+    var that = this;
+    $.ajax({
+      type: "PUT",
+      async: false,
+      url: that.urlRoot + that.id,
+      contentType:"application/json",
+      dataType: "json",
+      data: JSON.stringify(that.toJSON()),
+      success: function(data) { that.parse(data); callbacks.success(data); },
+      error: function(data) { callbacks.error(data); }
+    });
+  },
+
   getCurrentUser: function() {
     var that = this;
     $.ajax({

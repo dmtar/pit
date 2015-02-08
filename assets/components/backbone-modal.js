@@ -50,13 +50,18 @@
       _.extend(this, _.pick(options, _.keys(this.defaults)));
       _.bindAll(this, "close");
     },
-    render: function() {
+
+    render: function(params) {
+      params || (params = {});
+      _.extend(params, {user: app.CurrentUser})
+
       var view = this;
 
       this.$el.html(this.template({
         title: this.title,
-        body: this.body
+        body: this.body_template(params)
       }));
+
       this.$header = this.$el.find('.modal-header');
       this.$body = this.$el.find('.modal-body');
       this.$footer = this.$el.find('.modal-footer');
@@ -86,6 +91,7 @@
     close: function(e) {
       if (e && typeof e.preventDefault == 'function') e.preventDefault();
       var view = this;
+      debugger;
       this.trigger("close", this);
       setTimeout(function() {
         view.$el.modal("hide");
