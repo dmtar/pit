@@ -44,7 +44,8 @@ func (controller *PicturesController) Find(c web.C, w http.ResponseWriter, r *ht
 
 func (controller *PicturesController) New(c web.C, w http.ResponseWriter, r *http.Request) {
 	//TODO: Check the uploaded file for size, validity, existence and stuff.
-	file, _, err := r.FormFile("picture")
+	fmt.Println("Creating new picture")
+	file, _, err := r.FormFile("pictureUpload")
 
 	if err != nil {
 		controller.Error(w, errors.New("Something is not ok with the uploaded file!"))
