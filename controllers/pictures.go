@@ -4,7 +4,9 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"mime/multipart"
 	"net/http"
+	"strings"
 
 	"github.com/dmtar/pit/models"
 	"github.com/dmtar/pit/system"
@@ -39,7 +41,7 @@ func (controller *PicturesController) GetFile(c web.C, w http.ResponseWriter, r 
 	if file, err := controller.M.GetFile(c.URLParams["objectId"]); err != nil {
 		controller.Error(w, err)
 	} else {
-		w.Header().Set("Content-Type", "image/jpeg")
+		w.Header().Set("Content-Type", file.ContentType())
 		_, err := io.Copy(w, file)
 		if err != nil {
 			controller.Error(w, err)
@@ -65,10 +67,16 @@ func (controller *PicturesController) New(c web.C, w http.ResponseWriter, r *htt
 
 	r.ParseMultipartForm(0)
 
-	file, _, err := r.FormFile("picture")
-
+	file, header, err := r.FormFile("picture")
 	if err != nil {
-		controller.Error(w, err)
+		controller.Error(w, errors.New("Missing file!"))
+		return
+	}
+
+	contentType := header.Header.Get("Content-Type")
+	ct := strings.Split(contentType, "/")
+	if ct[0] != "image" {
+		controller.Error(w, fmt.Errorf("%s doesn't seem like an image!", contentType))
 		return
 	}
 
@@ -79,7 +87,18 @@ func (controller *PicturesController) New(c web.C, w http.ResponseWriter, r *htt
 		params.Add(k, v[0])
 	}
 
-	if err = params.Required("name", "location[name]", "date", "tags"); err != nil {
+	part := multipart.Part{Header: header.Header}
+	params.Add("fileName", part.FileName())
+	params.Add("contentType", contentType)
+
+	if err = params.Required(
+		"name",
+		"tags",
+		"date",
+		"location[name]",
+		"fileName",
+		"contentType",
+	); err != nil {
 		controller.Error(w, err)
 		return
 	}

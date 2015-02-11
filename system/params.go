@@ -94,8 +94,12 @@ func (p Params) exists(input map[string]interface{}, key string) (ok bool) {
 		}
 		ok = p.exists(params, pair[1])
 	} else {
-		_, ok = input[key]
+		var v interface{}
+		v, ok = input[key]
+		if s, isS := v.(string); isS && ok {
+			ok = (s != "")
+		}
 	}
 
-	return
+	return ok
 }

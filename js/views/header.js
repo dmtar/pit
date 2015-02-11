@@ -8,7 +8,9 @@ app.HeaderView = Backbone.View.extend({
   },
 
   render: function () {
-      $(this.el).html(this.template({user: app.CurrentUser}));
+      $(this.el).html(this.template({
+        user: app.CurrentUser
+      }));
       return this;
   }
 

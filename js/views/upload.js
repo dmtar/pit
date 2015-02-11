@@ -19,7 +19,17 @@ app.PictureUploadView = Backbone.View.extend({
       iframe: true,
       files: this.$('form :file'),
       contentType: 'multipart/form-data',
-      data: values
+      data: values,
+      success: function(picture, response) {
+        if (response.error != undefined) {
+          Backbone.trigger('flash', { message: response.error, type: 'warning' });
+        } else {
+          Backbone.trigger('flash', { message: 'Upload was successful!', type: 'success' });
+        }
+      },
+      error: function(picture, response) {
+        Backbone.trigger('flash', { message: response.error, type: 'warning' });
+      }
     });
   },
 

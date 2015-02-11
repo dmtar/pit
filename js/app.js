@@ -34,7 +34,6 @@ $(function () {
 $(document).on("ready", function () {
     app.CurrentUser = new app.UserModel();
     app.CurrentUser.getCurrentUser();
-    $(".alert").hide();
 
     app.loadTemplates(
       ["HeaderView", "HomeView", "PictureUploadView"],
@@ -42,6 +41,8 @@ $(document).on("ready", function () {
       function () {
           app.router = new app.Router();
           Backbone.history.start();
+          Backbone.Flash.initialize({el: "#flashes"});
+
           $("#loading").fadeOut(1000);
       }
     );

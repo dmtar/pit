@@ -14,6 +14,7 @@ import (
 )
 
 type PictureMeta struct {
+	Id       bson.ObjectId `bson:"id,omitempty" json:"id,omitempty"`
 	Name     string        `bson:"name" json:"name"`
 	Tags     *tagit.Tags   `bson:"tags" json:"tags"`
 	Location Location      `bson:"location" json:"location"`
@@ -119,20 +120,23 @@ func (model *PictureModel) Create(params system.Params, formFile multipart.File)
 		picture.Album = album.Id
 	}
 
-	file, err := model.Grid.Create(picture.Name)
+	file, err := model.Grid.Create(params.Get("fileName"))
+	file.SetContentType(params.Get("contentType"))
 
 	if err != nil {
 		return nil, err
 	}
 
-	_, err = io.Copy(file, formFile)
-
-	if err != nil {
+	if _, err = io.Copy(file, formFile); err != nil {
 		return nil, err
 	}
 
 	file.SetMeta(picture)
 	err = file.Close()
+
+	if err == nil {
+		picture.Id = file.Id().(bson.ObjectId)
+	}
 
 	return
 }
