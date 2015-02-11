@@ -1,35 +1,41 @@
-<div>
+<div class="well">
+  <h2> Picture Upload </h2>
+  <hr/>
   <form id="uploadPicture-form" class="form-horizontal">
     <div class="form-group">
-      <label for="pictureName" class="col-sm-2 control-label">Name</label>
+      <label for="name" class="col-sm-2 control-label">Name</label>
       <div class="col-sm-10">
-        <input type="text" name="pictureName" class="form-control" id="pictureName" placeholder="Name" required/>
+        <input type="text" name="name" class="form-control" id="name" placeholder="Name" required/>
       </div>
     </div>
     <div class="form-group">
-      <label for="pictureTags" class="col-sm-2 control-label">Tags</label>
+      <label for="tags" class="col-sm-2 control-label">Tags</label>
       <div class="col-sm-10">
-        <input type="text" name="pictureTags" class="form-control" id="pictureTags" placeholder="Tags" required/>
+        <input type="text" name="tags" class="form-control" id="tags" placeholder="Tags" required/>
       </div>
     </div>
     <div class="form-group">
-      <label for="pictureDate" class="col-sm-2 control-label">Date</label>
+      <label for="date" class="col-sm-2 control-label">Date</label>
       <div class="col-sm-10">
-        <input type="date" name="pictureDate" class="form-control" id="pictureDate" placeholder="Date" required/>
+        <input type="date" name="date" class="form-control" id="date" placeholder="Date" required/>
       </div>
     </div>
     <div class="form-group">
-      <label for="pictureLocation" class="col-sm-2 control-label">Location</label>
+      <label for="location[name]" class="col-sm-2 control-label">Location</label>
       <div class="col-sm-10">
-        <input type="text" name="pictureLocation" class="form-control" id="pictureLocation" placeholder="Location" required/>
+        <input type="text" name="location[name]" class="form-control" id="location[name]" placeholder="Location" required/>
       </div>
     </div>
     <div class="form-group">
-      <label for="pictureUpload" class="col-sm-2 control-label">File</label>
+      <label for="picture" class="col-sm-2 control-label">File</label>
       <div class="col-sm-10">
-        <input type="file" name="pictureUpload" class="form-control" id="pictureUpload" placeholder="File" required/>
+        <input type="file" name="picture" class="form-control" id="picture" placeholder="File" required/>
       </div>
     </div>
-    <input type="submit" id="uploadPicture-form-submit" />
+    <div class="row">
+      <div class="col-md-2 pull-right">
+        <input type="submit" class="btn btn-primary" id="uploadPicture-form-submit" />
+      </div>
+    </div>
   </form>
 </div>

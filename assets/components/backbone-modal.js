@@ -91,7 +91,6 @@
     close: function(e) {
       if (e && typeof e.preventDefault == 'function') e.preventDefault();
       var view = this;
-      debugger;
       this.trigger("close", this);
       setTimeout(function() {
         view.$el.modal("hide");

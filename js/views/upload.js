@@ -6,16 +6,21 @@ app.PictureUploadView = Backbone.View.extend({
   uploadFile: function(event) {
     var values = {};
     if(event){ event.preventDefault(); }
-		_.each(this.$('form').serializeArray(), function(input){
-    	values[ input.name ] = input.value;
+
+    _.each(this.$('form').serializeArray(), function(input){
+      values[ input.name ] = input.value;
     })
 
-	var pictureModel = new app.PictureModel();
+    values['date'] = new Date(values['date']).toJSON();
 
-    pictureModel.save(values, { iframe: true,
-                              files: this.$('form :file'),
-                              contentType: 'multipart/form-data',
-                              data: values });
+    var pictureModel = new app.PictureModel();
+
+    pictureModel.save(values, {
+      iframe: true,
+      files: this.$('form :file'),
+      contentType: 'multipart/form-data',
+      data: values
+    });
   },
 
   initialize: function() {

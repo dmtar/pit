@@ -3,8 +3,8 @@ package controllers
 import (
 	"errors"
 	"fmt"
+	"io"
 	"net/http"
-	"strings"
 
 	"github.com/dmtar/pit/models"
 	"github.com/dmtar/pit/system"
@@ -30,57 +30,63 @@ func (controller *PicturesController) Routes() (root *web.Mux) {
 	root.Use(gojiMiddleware.SubRouter)
 	root.Post("/new", Pictures.New)
 	root.Get("/:objectId", Pictures.Find)
+	root.Get("/file/:objectId", Pictures.GetFile)
 	root.Delete("/remove/:objectId", Pictures.Remove)
 	return
 }
 
-func (controller *PicturesController) Find(c web.C, w http.ResponseWriter, r *http.Request) {
-	if user, err := controller.M.Find(c.URLParams["objectId"]); err != nil {
+func (controller *PicturesController) GetFile(c web.C, w http.ResponseWriter, r *http.Request) {
+	if file, err := controller.M.GetFile(c.URLParams["objectId"]); err != nil {
 		controller.Error(w, err)
 	} else {
-		controller.Write(w, user)
+		w.Header().Set("Content-Type", "image/jpeg")
+		_, err := io.Copy(w, file)
+		if err != nil {
+			controller.Error(w, err)
+		}
+	}
+}
+
+func (controller *PicturesController) Find(c web.C, w http.ResponseWriter, r *http.Request) {
+	if picture, err := controller.M.Find(c.URLParams["objectId"]); err != nil {
+		controller.Error(w, err)
+	} else {
+		controller.Write(w, picture)
 	}
 }
 
 func (controller *PicturesController) New(c web.C, w http.ResponseWriter, r *http.Request) {
 	//TODO: Check the uploaded file for size, validity, existence and stuff.
-	fmt.Println("Creating new picture")
-	file, _, err := r.FormFile("pictureUpload")
-
-	if err != nil {
-		controller.Error(w, errors.New("Something is not ok with the uploaded file!"))
-		return
-	}
-
 	currentUser := controller.GetCurrentUser(c)
 	if currentUser == nil {
 		controller.Error(w, errors.New("You must be logged in to upload picture!"))
 		return
 	}
 
-	pictureName := controller.CheckPictureName(r.FormValue("name"))
-	if pictureName == nil {
-		controller.Error(w, errors.New("Not correct picture name!"))
+	r.ParseMultipartForm(0)
+
+	file, _, err := r.FormFile("picture")
+
+	if err != nil {
+		controller.Error(w, err)
 		return
 	}
 
 	defer file.Close()
 
-	pictureLocation := models.Location{
-		Longitude: models.ParseFloat64(r.FormValue("location_lng")),
-		Latitude:  models.ParseFloat64(r.FormValue("location_lat")),
-		Name:      r.FormValue("location_name"),
+	params := system.Params{}
+	for k, v := range r.Form {
+		params.Add(k, v[0])
 	}
 
-	formValues := system.Params{}
+	if err = params.Required("name", "location[name]", "date", "tags"); err != nil {
+		controller.Error(w, err)
+		return
+	}
 
-	formValues.Add("name", pictureName)
-	formValues.Add("tags", strings.TrimSpace(r.FormValue("tags")))
-	formValues.Add("user_id", currentUser.Id.Hex())
-	formValues.Add("location", pictureLocation)
-	formValues.Add("date", "2015-02-08T10:35:33.648Z")
+	params.Add("user", currentUser)
 
-	picture, err := controller.M.Create(formValues, file)
+	picture, err := controller.M.Create(params, file)
 
 	if err != nil {
 		controller.Error(w, err)
