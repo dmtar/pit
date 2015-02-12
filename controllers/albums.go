@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"errors"
 	"net/http"
 
@@ -27,7 +28,7 @@ func (controller *AlbumsController) Routes() (root *web.Mux) {
 	root = web.New()
 	root.Use(gojiMiddleware.SubRouter)
 	root.Get("/", Albums.GetForUser)
-	root.Put("/new", Albums.New)
+	root.Post("/new", Albums.New)
 	root.Get("/:objectId", Albums.Find)
 	root.Post("/:objectId/edit", Albums.Edit)
 	return
@@ -67,6 +68,7 @@ func (controller *AlbumsController) GetForUser(c web.C, w http.ResponseWriter, r
 
 func (controller *AlbumsController) New(c web.C, w http.ResponseWriter, r *http.Request) {
 	params := controller.GetParams(c)
+	
 	currentUser := controller.GetCurrentUser(c)
 	requiredParams := []string{
 		"name",

@@ -42,7 +42,7 @@ app.Router = Backbone.Router.extend({
   },
 
   addAlbum: function() {
-    console.log("Add Album");
+     $('#main').html(new app.AddAlbumView().render().el);
   },
 
   logout: function() {

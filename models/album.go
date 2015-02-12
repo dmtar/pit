@@ -47,6 +47,7 @@ func (model *AlbumModel) Find(objectId string) (album *AlbumData, err error) {
 }
 
 func (model *AlbumModel) Create(params system.Params) (album *AlbumData, err error) {
+	fmt.Println("creating album")
 	err = model.Connect()
 
 	if err != nil {

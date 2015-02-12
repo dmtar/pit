@@ -36,7 +36,7 @@ $(document).on("ready", function () {
     app.CurrentUser.getCurrentUser();
 
     app.loadTemplates(
-      ["HeaderView", "HomeView", "PictureUploadView", "PictureViewView"],
+      ["HeaderView", "HomeView", "PictureUploadView", "PictureViewView", "AddAlbumView"],
       ["LoginModal", "RegisterModal", "ProfileModal"],
       function () {
           app.router = new app.Router();
