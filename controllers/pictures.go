@@ -115,7 +115,6 @@ func (controller *PicturesController) New(c web.C, w http.ResponseWriter, r *htt
 }
 
 func (controller *PicturesController) Remove(c web.C, w http.ResponseWriter, r *http.Request) {
-	fmt.Println(c.URLParams["objectId"])
 	if err := controller.M.Remove(c.URLParams["objectId"]); err != nil {
 		controller.Error(w, err)
 	} else {

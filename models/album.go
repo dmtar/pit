@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
+	"strings"
 
 	"github.com/dmtar/pit/system"
 	tagit "github.com/ndyakov/tagit/bson"
@@ -47,7 +48,6 @@ func (model *AlbumModel) Find(objectId string) (album *AlbumData, err error) {
 }
 
 func (model *AlbumModel) Create(params system.Params) (album *AlbumData, err error) {
-	fmt.Println("creating album")
 	err = model.Connect()
 
 	if err != nil {
@@ -64,7 +64,7 @@ func (model *AlbumModel) Create(params system.Params) (album *AlbumData, err err
 		End:   ParseDate(params.GetP("date_range").Get("end")),
 	}
 
-	tags := tagit.NewTags(params.GetAString("tags")...)
+	tags := tagit.NewTags(strings.Split(params.Get("tags"), ",")...)
 
 	location := Location{
 		Longitude: ParseFloat64(params.GetP("location").Get("lng")),

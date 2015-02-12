@@ -5,27 +5,28 @@ app.AddAlbumView = Backbone.View.extend({
 
   addAlbum: function(e){
     e.preventDefault();
-  	var albumModel = new app.AlbumModel();
-  	var values = {
-  		"name": $("#albumName").val(),
-  		"location": {
-  			"lat": 0,
-  			"lng": 0,
-  			"name": $("#albumLocationName").val()
-  		},
-  		"tags": $("#albumTags").val(),
-  		"date_range": {
-  			"start": new Date($("#startDate").val()).toJSON(),
-  			"end": new Date($("#endDate").val()).toJSON()
-  		}
-  	};
+    var albumModel = new app.AlbumModel();
+    var values = {
+      "name": $("#albumName").val(),
+      "location": {
+        "lat": 0,
+        "lng": 0,
+        "name": $("#albumLocationName").val()
+      },
+      "tags": $("#albumTags").val(),
+      "date_range": {
+        "start": new Date($("#startDate").val()).toJSON(),
+        "end": new Date($("#endDate").val()).toJSON()
+      }
+    };
 
-  	albumModel.save(values, {
-      success: function(res) {
+    albumModel.save(values, {
+      success: function(album, response) {
         Backbone.trigger('flash', { message: "Success!", type: 'success' });
       },
-      error: function(res) {
-        Backbone.trigger('flash', { message: "Something went wrong!", type: 'error' });
+      error: function(album, response) {
+        console.log(arguments);
+        Backbone.trigger('flash', { message: response.responseJSON.error, type: 'warning' });
       }
     });
   },
