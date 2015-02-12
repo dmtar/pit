@@ -26,17 +26,18 @@
         <input type="text" name="location[name]" class="form-control" id="location[name]" placeholder="Location" required/>
       </div>
     </div>
-     <div class="form-group">
-      <input type="hidden" name="location[lat]" class="form-control" id="location[lat]"/>
-      <input type="hidden" name="location[lng]" class="form-control" id="location[lng]"/>
-      <div id="pictureUploadMap" style="width:500px; height:200px; position: absolute; display:inline;">
-      </div>
-    </div>
     <div class="form-group">
       <label for="picture" class="col-sm-2 control-label">File</label>
       <div class="col-sm-10">
         <input type="file" name="picture" class="form-control" id="picture" placeholder="File" required/>
       </div>
+    </div>
+    <div class="col-sm-2">
+    </div>
+     <input type="hidden" name="location[lat]" class="form-control" id="location[lat]"/>
+     <input type="hidden" name="location[lng]" class="form-control" id="location[lng]"/>
+    <div class="col-sm-10">
+      <div id="pictureUploadMap" class="well" style="height: 200px"></div>
     </div>
     <div class="row">
       <div class="col-md-2 pull-right">
