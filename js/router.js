@@ -9,7 +9,7 @@ app.Router = Backbone.Router.extend({
     "logout": "logout",
     "album/add": "addAlbum",
     "picture/upload": "uploadPicture",
-
+    //"picture/view/:objectId": "viewPicture",
   },
 
   initialize: function () {
@@ -24,6 +24,10 @@ app.Router = Backbone.Router.extend({
   uploadPicture: function() {
     $('#main').html(new app.PictureUploadView().render().el);
   },
+
+  //viewPicture: function(objectId) {
+    //$('#main').html(new app.PictureViewView(objectid).render().el);
+  //},
 
   openLoginModal: function() {
     new app.LoginModal().render();
@@ -44,8 +48,7 @@ app.Router = Backbone.Router.extend({
   logout: function() {
     app.CurrentUser.logout();
     Backbone.history.navigate("#");
-    $(".message-success").text("You are now logged out!");
-    $(".message-success").fadeIn(1000).fadeOut(1000);
+    Backbone.trigger('flash', { message: 'Your are now logged out!', type: 'success' });
   }
 
 });

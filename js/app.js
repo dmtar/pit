@@ -42,7 +42,6 @@ $(document).on("ready", function () {
           app.router = new app.Router();
           Backbone.history.start();
           Backbone.Flash.initialize({el: "#flashes"});
-
           $("#loading").fadeOut(1000);
       }
     );

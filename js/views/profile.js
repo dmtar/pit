@@ -49,8 +49,7 @@ app.ProfileModal = Backbone.ModalView.extend({
     $(".profile-form-ok").attr("disabled", "disabled");
 
     this.close();
-    $(".message-success").text("Your profile is updated!");
-    $(".message-success").fadeIn(1000).fadeOut(1000);
+    Backbone.trigger('flash', { message: 'Your profile is updated!', type: 'success' });
   },
 
   onCancel: function(e) {

@@ -15,7 +15,7 @@
       '  <div class="modal-content">',
       '    <div class="modal-header">',
       '      <a type="button" class="close" aria-hidden="true">&times;</a>',
-      '      <%=title%>',
+      '      <h3><%=title%></h3>',
       '    </div>',
       '    <div class="modal-body"><%=body%></div>',
       '    <div class="modal-footer">',

@@ -150,6 +150,11 @@ func (controller *UsersController) Edit(c web.C, w http.ResponseWriter, r *http.
 	params := controller.GetParams(c)
 	params.Add("user", currentUser)
 
+	if err := params.Required("display_name"); err != nil {
+		controller.Error(w, err)
+		return
+	}
+
 	if user, err := controller.M.Edit(params); err != nil {
 		controller.Error(w, err)
 	} else {
