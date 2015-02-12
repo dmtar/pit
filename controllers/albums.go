@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"fmt"
 	"errors"
 	"net/http"
 
@@ -68,7 +67,7 @@ func (controller *AlbumsController) GetForUser(c web.C, w http.ResponseWriter, r
 
 func (controller *AlbumsController) New(c web.C, w http.ResponseWriter, r *http.Request) {
 	params := controller.GetParams(c)
-	
+
 	currentUser := controller.GetCurrentUser(c)
 	requiredParams := []string{
 		"name",

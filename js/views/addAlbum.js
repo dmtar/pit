@@ -3,7 +3,8 @@ app.AddAlbumView = Backbone.View.extend({
     'submit form' : 'addAlbum'
   },
 
-  addAlbum: function(){
+  addAlbum: function(e){
+    e.preventDefault();
   	var albumModel = new app.AlbumModel();
   	var values = {
   		"name": $("#albumName").val(),
@@ -18,13 +19,13 @@ app.AddAlbumView = Backbone.View.extend({
   			"end": new Date($("#endDate").val()).toJSON()
   		}
   	};
-  	
+
   	albumModel.save(values, {
       success: function(res) {
-        Backbone.trigger('flash', { message: res, type: 'success' });
+        Backbone.trigger('flash', { message: "Success!", type: 'success' });
       },
       error: function(res) {
-        Backbone.trigger('flash', { message: res, type: 'error' });
+        Backbone.trigger('flash', { message: "Something went wrong!", type: 'error' });
       }
     });
   },
