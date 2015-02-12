@@ -11,7 +11,8 @@ app.Router = Backbone.Router.extend({
     "picture/upload": "uploadPicture",
     "picture/view/:objectId": "viewPicture",
   },
-  markers: [],
+
+  markers: {},
   map: {},
 
   initialize: function () {
@@ -25,6 +26,18 @@ app.Router = Backbone.Router.extend({
 
   uploadPicture: function() {
     $('#main').html(new app.PictureUploadView().render().el);
+    var mapOptions = {
+      zoom: 10,
+      center: new google.maps.LatLng(42.6833333, 23.3166667)
+    };
+    var pictureUploadMap = new google.maps.Map(document.getElementById('pictureUploadMap'), mapOptions);
+    this.activateMap(
+      pictureUploadMap,
+      'pictureUploadMarkers', {
+        lat: 'location[lat]',
+        lng: 'location[lng]'
+      }
+    );
   },
 
   viewPicture: function(objectId) {
@@ -43,39 +56,56 @@ app.Router = Backbone.Router.extend({
     new app.RegisterModal().render();
   },
 
-  clearMarkers: function() {
-    for (var i = 0; i < this.markers.length; i++ ) {
-      this.markers[i].setMap(null);
+  clearMarkers: function(markers) {
+    for (var i = 0; i < markers.length; i++ ) {
+      markers[i].setMap(null);
     }
-    this.markers.length = 0;
+    markers.length = 0;
   },
 
-  activate: function() {
-      var mapOptions = {
-        zoom: 10,
-        center: new google.maps.LatLng(42.6833333, 23.3166667)
-      };
-
-      this.map = new google.maps.Map(document.getElementById('albumFormMap'), mapOptions);
+  activateMap: function(map, markersKey, selectors) {
       var that = this;
-      google.maps.event.addListener(this.map, "click", function (event) {
-        that.clearMarkers();
+      google.maps.event.addListener(map, "click", function (event) {
+
+        if(that.markers[markersKey] !== undefined) {
+          that.clearMarkers(that.markers[markersKey]);
+        }
+
         var latitude = event.latLng.lat();
         var longitude = event.latLng.lng();
         var marker = new google.maps.Marker({
-            position: event.latLng
+            position: event.latLng,
+            map: map
         });
 
-        marker.setMap(that.map);
-        $('#albumLocationLat').val(latitude);
-        $('#albumLocationLng').val(longitude);
-        that.markers.push(marker);
+        $(selectors.lat).val(latitude);
+        $(selectors.lng).val(longitude);
+
+        //TODO: Find the the name with geocoder.
+        // $(inputs.name).val(name);
+        if(that.markers[markersKey] === undefined) {
+          that.markers[markersKey] = [];
+        }
+
+        that.markers[markersKey].push(marker);
     });
   },
 
   addAlbum: function() {
      $('#main').html(new app.AddAlbumView().render().el);
-     this.activate();
+
+      var mapOptions = {
+        zoom: 10,
+        center: new google.maps.LatLng(42.6833333, 23.3166667)
+      };
+      var addAlbumMap = new google.maps.Map(document.getElementById('albumFormMap'), mapOptions);
+      this.activateMap(
+        addAlbumMap,
+        'albumMapMarkers', {
+          lat: 'albumLocationLat',
+          lng: 'albumLocationLng'
+        }
+      );
   },
 
   logout: function() {
