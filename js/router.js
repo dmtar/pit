@@ -9,7 +9,7 @@ app.Router = Backbone.Router.extend({
     "logout": "logout",
     "album/add": "addAlbum",
     "picture/upload": "uploadPicture",
-    //"picture/view/:objectId": "viewPicture",
+    "picture/view/:objectId": "viewPicture",
   },
 
   initialize: function () {
@@ -25,9 +25,9 @@ app.Router = Backbone.Router.extend({
     $('#main').html(new app.PictureUploadView().render().el);
   },
 
-  //viewPicture: function(objectId) {
-    //$('#main').html(new app.PictureViewView(objectid).render().el);
-  //},
+  viewPicture: function(objectId) {
+    $('#main').html(new app.PictureViewView(objectId).render().el);
+  },
 
   openLoginModal: function() {
     new app.LoginModal().render();
