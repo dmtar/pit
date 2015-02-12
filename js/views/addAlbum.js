@@ -9,8 +9,8 @@ app.AddAlbumView = Backbone.View.extend({
     var values = {
       "name": $("#albumName").val(),
       "location": {
-        "lat": 0,
-        "lng": 0,
+        "lat": $('#albumLocationLat').val(),
+        "lng": $('#albumLocationLng').val(),
         "name": $("#albumLocationName").val()
       },
       "tags": $("#albumTags").val(),
@@ -25,7 +25,6 @@ app.AddAlbumView = Backbone.View.extend({
         Backbone.trigger('flash', { message: "Success!", type: 'success' });
       },
       error: function(album, response) {
-        console.log(arguments);
         Backbone.trigger('flash', { message: response.responseJSON.error, type: 'warning' });
       }
     });

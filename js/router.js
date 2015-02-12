@@ -11,6 +11,8 @@ app.Router = Backbone.Router.extend({
     "picture/upload": "uploadPicture",
     "picture/view/:objectId": "viewPicture",
   },
+  markers: [],
+  map: {},
 
   initialize: function () {
     $('header').html(new app.HeaderView().render().el);
@@ -41,8 +43,39 @@ app.Router = Backbone.Router.extend({
     new app.RegisterModal().render();
   },
 
+  clearMarkers: function() {
+    for (var i = 0; i < this.markers.length; i++ ) {
+      this.markers[i].setMap(null);
+    }
+    this.markers.length = 0;
+  },
+
+  activate: function() {
+      var mapOptions = {
+        zoom: 10,
+        center: new google.maps.LatLng(42.6833333, 23.3166667)
+      };
+
+      this.map = new google.maps.Map(document.getElementById('albumFormMap'), mapOptions);
+      var that = this;
+      google.maps.event.addListener(this.map, "click", function (event) {
+        that.clearMarkers();
+        var latitude = event.latLng.lat();
+        var longitude = event.latLng.lng();
+        var marker = new google.maps.Marker({
+            position: event.latLng
+        });
+
+        marker.setMap(that.map);
+        $('#albumLocationLat').val(latitude);
+        $('#albumLocationLng').val(longitude);
+        that.markers.push(marker);
+    });
+  },
+
   addAlbum: function() {
      $('#main').html(new app.AddAlbumView().render().el);
+     this.activate();
   },
 
   logout: function() {
