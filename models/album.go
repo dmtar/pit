@@ -99,7 +99,7 @@ func (model *AlbumModel) Create(params system.Params) (album *AlbumData, err err
 	return
 }
 
-func (model *AlbumModel) GetForUser(params system.Params) (albums []*AlbumData, err error) {
+func (model *AlbumModel) FindByUser(params system.Params) (albums []*AlbumData, err error) {
 	if err := model.Connect(); err != nil {
 		return nil, err
 	}

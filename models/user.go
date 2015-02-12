@@ -133,7 +133,7 @@ func (model *UserModel) GetAlbums(objectId string, public bool) (albums []*Album
 		return nil, err
 	}
 
-	return Album.GetForUser(system.Params{
+	return Album.FindByUser(system.Params{
 		"user":   user,
 		"public": public,
 	})

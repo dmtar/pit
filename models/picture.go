@@ -13,8 +13,16 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
+type PictureFiles struct {
+	Id          bson.ObjectId `bson:"_id,omitempty" json:"id,omitempty"`
+	UploadDate  time.Time     `bson:"uploadDate" json:"upload_date"`
+	Filename    string        `bson:"filename" json:"filename"`
+	ContentType string        `bson:"contentType" json:"content_type"`
+	Metadata    PictureMeta   `bson:"metadata" json:"metadata"`
+}
+
 type PictureMeta struct {
-	Id       bson.ObjectId `bson:"id,omitempty" json:"id,omitempty"`
+	Id       bson.ObjectId `bson:"_id,omitempty" json:"id,omitempty"`
 	Name     string        `bson:"name" json:"name"`
 	Tags     *tagit.Tags   `bson:"tags" json:"tags"`
 	Location Location      `bson:"location" json:"location"`
@@ -33,10 +41,11 @@ type PictureModel struct {
 	MgoModel
 }
 
-var Picture = NewPictureModel("fs")
+var Picture = NewPictureModel("fs", "fs.files")
 
-func NewPictureModel(prefix string) *PictureModel {
+func NewPictureModel(prefix, collection string) *PictureModel {
 	model := new(PictureModel)
+	model.SetCollectionName(collection)
 	model.SetGridFSPrefix(prefix)
 	return model
 }
@@ -139,6 +148,29 @@ func (model *PictureModel) Create(params system.Params, formFile multipart.File)
 	}
 
 	return
+}
+
+func (model *PictureModel) FindByAlbum(albumId string) (pictures []*PictureMeta, err error) {
+	if !bson.IsObjectIdHex(albumId) {
+		return nil, errors.New("The provided objectID is not valid!")
+	}
+
+	if err := model.Connect(); err != nil {
+		return nil, err
+	}
+
+	files := make([]*PictureFiles, 0)
+	pictures = make([]*PictureMeta, 0)
+
+	err = model.Grid.Find(bson.M{"metadata.album": bson.ObjectIdHex(albumId)}).All(&files)
+
+	for _, file := range files {
+		file.Metadata.Id = file.Id
+		pictures = append(pictures, &file.Metadata)
+	}
+
+	return pictures, err
+
 }
 
 // func (model *PictureModel) CreateThumbnail(file *GridFile) {
