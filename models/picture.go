@@ -37,14 +37,26 @@ func NewPictureMeta() *PictureMeta {
 	return pm
 }
 
-func (pm PictureMeta) CanBeViewedBy(user *UserData) bool {
+func (pm PictureMeta) CanBeViewedBy(user *UserData) error {
 	public := false
 	if pm.Album.Hex() != "" {
 		if album, err := Album.Find(pm.Album.Hex()); err == nil {
 			public = album.Public
 		}
 	}
-	return public || user != nil && pm.User == user.Id
+
+	if public || user != nil && pm.User == user.Id {
+		return nil
+	}
+
+	return errors.New("You don't have permissions to view this picture!")
+}
+
+func (pm PictureMeta) CanBeEditedBy(user *UserData) error {
+	if user != nil && pm.User == user.Id {
+		return nil
+	}
+	return errors.New("You don't have permissions to edit this picture!")
 }
 
 type PictureModel struct {

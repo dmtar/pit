@@ -41,30 +41,28 @@ func (controller *PicturesController) Routes() (root *web.Mux) {
 
 func (controller *PicturesController) CanBeViewed(c web.C, w http.ResponseWriter, r *http.Request) {
 	currentUser := controller.GetCurrentUser(c)
-	mustBeLoggedIn := errors.New("You must be logged in to view this picture!")
 	picture, err := controller.M.Find(c.URLParams["objectId"])
 	if err != nil {
 		controller.Error(w, err)
-		return
 	} else {
-		if picture.CanBeViewedBy(currentUser) {
+		if err := picture.CanBeViewedBy(currentUser); err == nil {
 			controller.Write(w, bson.M{"success": true})
-			return
+		} else {
+			controller.Error(w, err)
 		}
 	}
-	controller.Error(w, mustBeLoggedIn)
 }
 
 func (controller *PicturesController) GetFile(c web.C, w http.ResponseWriter, r *http.Request) {
 	currentUser := controller.GetCurrentUser(c)
-	mustBeLoggedIn := errors.New("You must be logged in to view this picture!")
 	picture, err := controller.M.Find(c.URLParams["objectId"])
+
 	if err != nil {
 		controller.Error(w, err)
 		return
 	}
 
-	if picture.CanBeViewedBy(currentUser) {
+	if err := picture.CanBeViewedBy(currentUser); err == nil {
 		file, err := controller.M.GetFile(c.URLParams["objectId"])
 		if err != nil {
 			controller.Error(w, err)
@@ -80,7 +78,7 @@ func (controller *PicturesController) GetFile(c web.C, w http.ResponseWriter, r 
 
 		w.Header().Set("Content-Type", file.ContentType())
 	} else {
-		controller.Error(w, mustBeLoggedIn)
+		controller.Error(w, err)
 	}
 }
 
@@ -88,12 +86,16 @@ func (controller *PicturesController) Find(c web.C, w http.ResponseWriter, r *ht
 	if picture, err := controller.M.Find(c.URLParams["objectId"]); err != nil {
 		controller.Error(w, err)
 	} else {
-		controller.Write(w, picture)
+		currentUser := controller.GetCurrentUser(c)
+		if err := picture.CanBeViewedBy(currentUser); err == nil {
+			controller.Write(w, picture)
+		} else {
+			controller.Error(w, err)
+		}
 	}
 }
 
 func (controller *PicturesController) New(c web.C, w http.ResponseWriter, r *http.Request) {
-	//TODO: Check the uploaded file for size, validity, existence and stuff.
 	currentUser := controller.GetCurrentUser(c)
 	if currentUser == nil {
 		controller.Error(w, errors.New("You must be logged in to upload picture!"))
@@ -150,10 +152,22 @@ func (controller *PicturesController) New(c web.C, w http.ResponseWriter, r *htt
 }
 
 func (controller *PicturesController) Remove(c web.C, w http.ResponseWriter, r *http.Request) {
+	currentUser := controller.GetCurrentUser(c)
+	picture, err := controller.M.Find(c.URLParams["objectId"])
+
+	if err != nil {
+		controller.Error(w, err)
+		return
+	}
+
+	if err := picture.CanBeEditedBy(currentUser); err == nil {
+		controller.Write(w, bson.M{"success": true})
+	} else {
+		controller.Error(w, err)
+	}
 	if err := controller.M.Remove(c.URLParams["objectId"]); err != nil {
 		controller.Error(w, err)
 	} else {
-		controller.Write(w, err)
 	}
 }
 
