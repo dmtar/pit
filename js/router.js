@@ -8,6 +8,8 @@ app.Router = Backbone.Router.extend({
     "me": "openProfileModal",
     "logout": "logout",
     "album/add": "addAlbum",
+    "album/edit/:objectId": "editAlbum",
+    "album/list": "listAlbums", 
     "picture/upload": "uploadPicture",
     "picture/view/:objectId": "viewPicture",
   },
@@ -117,6 +119,16 @@ app.Router = Backbone.Router.extend({
           location_name: 'input[name="albumLocationName"]'
         }
       );
+  },
+
+  editAlbum: function(objectId) {
+    var albumModel = new app.AlbumModel({id: objectId});
+    albumModel.fetch({
+      success: function(data){
+        var album = data.attributes;
+        $('#main').html(new app.EditAlbumView().render(album).el);
+      }
+    });
   },
 
   logout: function() {

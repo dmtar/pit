@@ -1,0 +1,63 @@
+<div class="well">
+  <h2> Edit Album </h2>
+  <hr/>
+  <form id="editAlbum-form" class="form-horizontal">
+    <inout type="hidden" name="albumId" id="albumId" value="<%=album.id%>"/>
+    <div class="form-group">
+      <label for="albumName" class="col-sm-2 control-label">Name</label>
+      <div class="col-sm-10">
+        <input type="text" name="albumName" class="form-control" id="albumName" placeholder="Name" value="<%=album.name%>" required/>
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="isPublic" class="col-sm-2 control-label">Public</label>
+      <div class="col-sm-10">
+        <div class="checkbox">
+          <label for="isPublic" >
+            <% if (album.public) { %>
+              <input type="checkbox" name="isPublic" id="isPublic" checked>
+            <% } else { %>
+              <input type="checkbox" name="isPublic" id="isPublic">
+            <% } %>
+          </label>
+        </div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="albumTags" class="col-sm-2 control-label">Tags</label>
+      <div class="col-sm-10">
+        <input type="text" name="albumTags" class="form-control" id="albumTags" placeholder="Tags" value="<%=albumTags%>"required/>
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="startDate" class="col-sm-2 control-label">Start Date</label>
+      <div class="col-sm-10">
+        <input type="date" name="startDate" class="form-control" id="startDate" placeholder="Start Date" value="<%=dates.start%>" required/>
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="endDate" class="col-sm-2 control-label">End Date</label>
+      <div class="col-sm-10">
+        <input type="date" name="endDate" class="form-control" id="endDate" placeholder="End Date" value="<%=dates.end%>" required/>
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="albumLocationName" class="col-sm-2 control-label">Location</label>
+      <div class="col-sm-10">
+        <input type="text" name="albumLocationName" class="form-control" id="albumLocationName" value="<%=album.location.name%>" placeholder="" readonly/>
+      </div>
+    </div>
+    <div class="col-sm-2">
+    </div>
+    <input type="hidden" name="albumLocationLat" class="form-control" id="albumLocationLat" value="<%=album.location.lat%>"/>
+    <input type="hidden" name="albumLocationLng" class="form-control" id="albumLocationLng" value="<%=album.location.lng%>"/>
+    <div class="col-sm-10">
+      <div id="albumFormMap" class="well" style="height: 200px"></div>
+    </div>
+    <div class="row">
+      <div class="col-md-2 pull-right">
+        <input type="submit" class="btn btn-primary" id="editAlbum-form-submit" />
+      </div>
+    </div>
+  </form>
+</div>

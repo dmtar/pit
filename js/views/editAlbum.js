@@ -1,9 +1,9 @@
-app.AddAlbumView = Backbone.View.extend({
+app.EditAlbumView = Backbone.View.extend({
   events: {
-    'submit form' : 'addAlbum'
+    'submit form' : 'editAlbum'
   },
 
-  addAlbum: function(e){
+  editAlbum: function(e){
     e.preventDefault();
     var albumModel = new app.AlbumModel();
     var values = {
@@ -13,7 +13,6 @@ app.AddAlbumView = Backbone.View.extend({
         "lng": $('#albumLocationLng').val(),
         "name": $("#albumLocationName").val()
       },
-      "public": $("#isPublic").is(':checked'),
       "tags": $("#albumTags").val(),
       "date_range": {
         "start": new Date($("#startDate").val()).toJSON(),
@@ -31,8 +30,13 @@ app.AddAlbumView = Backbone.View.extend({
     });
   },
 
-  render: function () {
-      $(this.el).html(this.template({user: app.CurrentUser}));
+  render: function (album) {
+      var albumTags = album.tags.join();
+      dates = {
+        start: new Date(album.date_range.start).toISOString().slice(0,10),
+        end: new Date(album.date_range.end).toISOString().slice(0,10)
+      }
+      $(this.el).html(this.template({user: app.CurrentUser, album: album, albumTags: albumTags, dates: dates}));
       return this;
   }
 
