@@ -20,6 +20,7 @@ app.PictureViewView = Backbone.View.extend({
   initialize: function(objectId) {
     this.picture = new app.PictureModel({id: objectId});
     this.picture.fetch();
+    this.picture.canView();
     this.album = new app.AlbumModel({id: this.picture.get("album")});
     this.picture.on('change', this.reloadAlbum, this);
     this.picture.on('change', this.updateDetails, this);

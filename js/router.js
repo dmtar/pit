@@ -135,6 +135,7 @@ app.Router = Backbone.Router.extend({
     app.CurrentUser.logout();
     Backbone.history.navigate("#");
     Backbone.trigger('flash', { message: 'Your are now logged out!', type: 'success' });
+    this.home();
   }
 
 });
