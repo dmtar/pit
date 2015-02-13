@@ -12,6 +12,7 @@ import (
 	"github.com/dmtar/pit/system"
 	"github.com/zenazn/goji/web"
 	gojiMiddleware "github.com/zenazn/goji/web/middleware"
+	"gopkg.in/mgo.v2/bson"
 )
 
 var Pictures = NewPicturesController()
@@ -32,20 +33,54 @@ func (controller *PicturesController) Routes() (root *web.Mux) {
 	root.Use(gojiMiddleware.SubRouter)
 	root.Post("/new", Pictures.New)
 	root.Get("/:objectId", Pictures.Find)
+	root.Get("/canview/:objectId", Pictures.CanBeViewed)
 	root.Get("/file/:objectId", Pictures.GetFile)
 	root.Delete("/remove/:objectId", Pictures.Remove)
 	return
 }
 
-func (controller *PicturesController) GetFile(c web.C, w http.ResponseWriter, r *http.Request) {
-	if file, err := controller.M.GetFile(c.URLParams["objectId"]); err != nil {
+func (controller *PicturesController) CanBeViewed(c web.C, w http.ResponseWriter, r *http.Request) {
+	currentUser := controller.GetCurrentUser(c)
+	mustBeLoggedIn := errors.New("You must be logged in to view this picture!")
+	picture, err := controller.M.Find(c.URLParams["objectId"])
+	if err != nil {
 		controller.Error(w, err)
+		return
 	} else {
-		w.Header().Set("Content-Type", file.ContentType())
-		_, err := io.Copy(w, file)
+		if picture.CanBeViewedBy(currentUser) {
+			controller.Write(w, bson.M{"success": true})
+			return
+		}
+	}
+	controller.Error(w, mustBeLoggedIn)
+}
+
+func (controller *PicturesController) GetFile(c web.C, w http.ResponseWriter, r *http.Request) {
+	currentUser := controller.GetCurrentUser(c)
+	mustBeLoggedIn := errors.New("You must be logged in to view this picture!")
+	picture, err := controller.M.Find(c.URLParams["objectId"])
+	if err != nil {
+		controller.Error(w, err)
+		return
+	}
+
+	if picture.CanBeViewedBy(currentUser) {
+		file, err := controller.M.GetFile(c.URLParams["objectId"])
 		if err != nil {
 			controller.Error(w, err)
+			return
 		}
+
+		_, err = io.Copy(w, file)
+
+		if err != nil {
+			controller.Error(w, err)
+			return
+		}
+
+		w.Header().Set("Content-Type", file.ContentType())
+	} else {
+		controller.Error(w, mustBeLoggedIn)
 	}
 }
 

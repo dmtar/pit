@@ -37,6 +37,16 @@ func NewPictureMeta() *PictureMeta {
 	return pm
 }
 
+func (pm PictureMeta) CanBeViewedBy(user *UserData) bool {
+	public := false
+	if pm.Album.Hex() != "" {
+		if album, err := Album.Find(pm.Album.Hex()); err == nil {
+			public = album.Public
+		}
+	}
+	return public || user != nil && pm.User == user.Id
+}
+
 type PictureModel struct {
 	MgoModel
 }
@@ -78,9 +88,7 @@ func (model *PictureModel) Find(objectId string) (picture *PictureMeta, err erro
 	}
 
 	err = file.GetMeta(&picture)
-	if err != nil {
-		return nil, errors.New("Something went wrong!")
-	}
+	picture.Id = bson.ObjectIdHex(objectId)
 
 	return
 }
