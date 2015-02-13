@@ -39,7 +39,8 @@ app.Router = Backbone.Router.extend({
         lat: 'input[name="location[lat]"]',
         lng: 'input[name="location[lng]"]',
         location_name: 'input[name="location[name]"]'
-      }
+      },
+      true
     );
   },
 
@@ -66,7 +67,7 @@ app.Router = Backbone.Router.extend({
     markers.length = 0;
   },
 
-  activateMap: function(map, markersKey, selectors) {
+  activateMap: function(map, markersKey, selectors, setLocationName) {
       var that = this;
       google.maps.event.addListener(map, "click", function (event) {
 
@@ -83,7 +84,10 @@ app.Router = Backbone.Router.extend({
 
         $(selectors.lat).val(latitude);
         $(selectors.lng).val(longitude);
-        that.setLocationName(latitude, longitude, selectors.location_name);
+
+        if(setLocationName) {
+          that.setLocationName(latitude, longitude, selectors.location_name);
+        }
 
         if(that.markers[markersKey] === undefined) {
           that.markers[markersKey] = [];
@@ -117,16 +121,39 @@ app.Router = Backbone.Router.extend({
           lat: 'input[name="albumLocationLat"]',
           lng: 'input[name="albumLocationLng"]',
           location_name: 'input[name="albumLocationName"]'
-        }
+        },
+        true
       );
   },
 
   editAlbum: function(objectId) {
     var albumModel = new app.AlbumModel({id: objectId});
+    var that = this;
     albumModel.fetch({
       success: function(data){
         var album = data.attributes;
         $('#main').html(new app.EditAlbumView().render(album).el);
+        var mapOptions = {
+          zoom: 10,
+          center: new google.maps.LatLng(album.location.lat, album.location.lng)
+        };
+
+        var editAlbumMap = new google.maps.Map(document.getElementById('editAlbumFormMap'), mapOptions);
+        that.activateMap(
+          editAlbumMap,
+          'editAlbumMapMarkers', {
+            lat: 'input[name="albumLocationLat"]',
+            lng: 'input[name="albumLocationLng"]',
+            location_name: 'input[name="albumLocationName"]'
+          },
+          false
+        );
+
+        var latLng = new google.maps.LatLng(album.location.lat, album.location.lng);
+        new google.maps.Marker({
+            position: latLng,
+            map: editAlbumMap
+        });
       }
     });
   },
