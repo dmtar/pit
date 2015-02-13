@@ -34,8 +34,9 @@ app.Router = Backbone.Router.extend({
     this.activateMap(
       pictureUploadMap,
       'pictureUploadMarkers', {
-        lat: 'location[lat]',
-        lng: 'location[lng]'
+        lat: 'input[name="location[lat]"]',
+        lng: 'input[name="location[lng]"]',
+        location_name: 'input[name="location[name]"]'
       }
     );
   },
@@ -80,14 +81,23 @@ app.Router = Backbone.Router.extend({
 
         $(selectors.lat).val(latitude);
         $(selectors.lng).val(longitude);
+        that.setLocationName(latitude, longitude, selectors.location_name);
 
-        //TODO: Find the the name with geocoder.
-        // $(inputs.name).val(name);
         if(that.markers[markersKey] === undefined) {
           that.markers[markersKey] = [];
         }
 
         that.markers[markersKey].push(marker);
+    });
+  },
+
+  setLocationName: function(lat, lng, selector) {
+    var geocoder = new google.maps.Geocoder();
+    var latlng = new google.maps.LatLng(lat, lng);
+    geocoder.geocode({'latLng': latlng}, function(results, status) {
+      if (status == google.maps.GeocoderStatus.OK) {
+        $(selector).val(results[2].formatted_address);
+      }
     });
   },
 
@@ -102,8 +112,9 @@ app.Router = Backbone.Router.extend({
       this.activateMap(
         addAlbumMap,
         'albumMapMarkers', {
-          lat: 'albumLocationLat',
-          lng: 'albumLocationLng'
+          lat: 'input[name="albumLocationLat"]',
+          lng: 'input[name="albumLocationLng"]',
+          location_name: 'input[name="albumLocationName"]'
         }
       );
   },
