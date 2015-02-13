@@ -13,6 +13,7 @@ app.AddAlbumView = Backbone.View.extend({
         "lng": $('#albumLocationLng').val(),
         "name": $("#albumLocationName").val()
       },
+      "public": $("#isPublic").is(':checked'),
       "tags": $("#albumTags").val(),
       "date_range": {
         "start": new Date($("#startDate").val()).toJSON(),

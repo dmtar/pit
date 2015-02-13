@@ -56,3 +56,17 @@
     </div>
   </form>
 </div>
+
+<script>
+$('#albumTags').selectize({
+    delimiter: ',',
+    persist: false,
+    createOnBlur: true,
+    create: function(input){
+      return {
+        value: input.toLowerCase(),
+        text: input.toLowerCase()
+      }
+    }
+});
+</script>

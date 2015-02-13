@@ -25,20 +25,22 @@ app.Router = Backbone.Router.extend({
   },
 
   uploadPicture: function() {
-    $('#main').html(new app.PictureUploadView().render().el);
-    var mapOptions = {
-      zoom: 10,
-      center: new google.maps.LatLng(42.6833333, 23.3166667)
-    };
-    var pictureUploadMap = new google.maps.Map(document.getElementById('pictureUploadMap'), mapOptions);
-    this.activateMap(
-      pictureUploadMap,
-      'pictureUploadMarkers', {
-        lat: 'input[name="location[lat]"]',
-        lng: 'input[name="location[lng]"]',
-        location_name: 'input[name="location[name]"]'
-      }
-    );
+    if (app.CurrentUser.id) {
+      $('#main').html(new app.PictureUploadView().render().el);
+      var mapOptions = {
+        zoom: 10,
+        center: new google.maps.LatLng(42.6833333, 23.3166667)
+      };
+      var pictureUploadMap = new google.maps.Map(document.getElementById('pictureUploadMap'), mapOptions);
+      this.activateMap(
+        pictureUploadMap,
+        'pictureUploadMarkers', {
+          lat: 'input[name="location[lat]"]',
+          lng: 'input[name="location[lng]"]',
+          location_name: 'input[name="location[name]"]'
+        }
+      );
+    }
   },
 
   viewPicture: function(objectId) {
@@ -102,12 +104,14 @@ app.Router = Backbone.Router.extend({
   },
 
   addAlbum: function() {
-     $('#main').html(new app.AddAlbumView().render().el);
+    if (app.CurrentUser.id) {
+      $('#main').html(new app.AddAlbumView().render().el);
 
       var mapOptions = {
         zoom: 10,
         center: new google.maps.LatLng(42.6833333, 23.3166667)
       };
+
       var addAlbumMap = new google.maps.Map(document.getElementById('albumFormMap'), mapOptions);
       this.activateMap(
         addAlbumMap,
@@ -117,11 +121,12 @@ app.Router = Backbone.Router.extend({
           location_name: 'input[name="albumLocationName"]'
         }
       );
+    }
   },
 
   logout: function() {
     app.CurrentUser.logout();
-    Backbone.history.navigate("#");
+    Backbone.history.navigate("#", true);
     Backbone.trigger('flash', { message: 'Your are now logged out!', type: 'success' });
     this.home();
   }

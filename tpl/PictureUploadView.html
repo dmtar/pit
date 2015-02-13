@@ -46,3 +46,17 @@
     </div>
   </form>
 </div>
+
+<script>
+$('#tags').selectize({
+    delimiter: ',',
+    persist: false,
+    createOnBlur: true,
+    create: function(input){
+      return {
+        value: input.toLowerCase(),
+        text: input.toLowerCase()
+      }
+    }
+});
+</script>

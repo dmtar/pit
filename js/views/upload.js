@@ -25,7 +25,7 @@ app.PictureUploadView = Backbone.View.extend({
           Backbone.trigger('flash', { message: response.error, type: 'warning' });
         } else {
           Backbone.trigger('flash', { message: 'Upload was successful!', type: 'success' });
-          Backbone.history.navigate("#picture/view/"+picture.id);
+          Backbone.history.navigate("#picture/view/"+picture.id, true);
         }
       },
       error: function(picture, response) {

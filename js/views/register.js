@@ -60,7 +60,7 @@ app.RegisterModal = Backbone.ModalView.extend({
 
   onHidden: function(e) {
     $(".register-error").hide();
-    Backbone.history.navigate("#");
+    Backbone.history.navigate("#", true);
   },
 
   postRender: function() {
