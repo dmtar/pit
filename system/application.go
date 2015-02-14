@@ -11,7 +11,7 @@ var App = NewApplication()
 type Application struct {
 	Store     *sessions.CookieStore
 	DB        *mgo.Database
-	DBSession *mgo.Session
+	dbSession *mgo.Session
 }
 
 func NewApplication() *Application {
@@ -24,14 +24,23 @@ func (application *Application) Init() {
 	var err error
 	secret := []byte(config.Secret)
 	application.Store = sessions.NewCookieStore(secret)
-	application.DBSession, err = mgo.Dial("localhost")
+	application.dbSession, err = mgo.Dial("localhost")
 	check(err)
-	application.DB = application.DBSession.DB("pit")
+	application.DB = application.dbSession.DB("pit")
 	go application.CreateIndexes()
 }
 
+func (application *Application) DBSession() *mgo.Session {
+	var err error
+	if application.dbSession.Ping() != nil {
+		application.dbSession, err = mgo.Dial("localhost")
+		check(err)
+	}
+
+	return application.dbSession
+}
 func (application *Application) Close() {
-	application.DBSession.Close()
+	application.dbSession.Close()
 }
 
 func (application *Application) CreateIndexes() {

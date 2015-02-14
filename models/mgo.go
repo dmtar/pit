@@ -31,7 +31,7 @@ func (model *MgoModel) Connect() (err error) {
 	if model.session != nil && model.session.Ping() == nil {
 		return nil
 	}
-	model.session = system.App.DBSession
+	model.session = system.App.DBSession()
 	if err != nil {
 		return common.ServerError{
 			fmt.Errorf("Can't connect to mongo, go error: %v", err),
