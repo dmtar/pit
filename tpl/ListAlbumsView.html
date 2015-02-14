@@ -6,6 +6,7 @@
 	    <h2 class="list-group-item-heading"><%= _.escape(album.name) %></h2>
 	    <span class="list-group-item-text albumListingTags"><%= _.escape(album.tags.join(' ')) %></span>
 	    <a href="#album/remove/<%= _.escape(album.id) %>" class="list-group-item active">Remove</a>
+	    <a href="#album/edit/<%= _.escape(album.id) %>" class="list-group-item active">Edit</a>
 	  </a>
 	</div>
 	<% }); %>
