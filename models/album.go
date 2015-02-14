@@ -12,14 +12,14 @@ import (
 )
 
 type AlbumData struct {
-	Id        bson.ObjectId `bson:"_id" json:"id"`
-	Name      string        `bson:"name" json:"name"`
-	Tags      *tagit.Tags   `bson:"tags" json:"tags"`
-	Location  Location      `bson:"location" json:"location"`
-	DateRange DateRange     `bson:"date_range" json:"date_range"`
-	Public    bool          `bson:"public" json:"public"`
-	NumPhotos int           `bson:"num_photos" json:"num_photos"`
-	User      bson.ObjectId `bson:"user", json:"user"`
+	Id          bson.ObjectId `bson:"_id" json:"id"`
+	Name        string        `bson:"name" json:"name"`
+	Tags        *tagit.Tags   `bson:"tags" json:"tags"`
+	Location    Location      `bson:"location" json:"location"`
+	DateRange   DateRange     `bson:"date_range" json:"date_range"`
+	Public      bool          `bson:"public" json:"public"`
+	NumPictures int           `bson:"num_pictures" json:"num_pictures"`
+	User        bson.ObjectId `bson:"user", json:"user"`
 }
 
 func NewAlbumData() *AlbumData {
@@ -45,6 +45,12 @@ func (model *AlbumModel) Find(objectId string) (album *AlbumData, err error) {
 	err = model.MgoFind(objectId, album)
 
 	return
+}
+
+func (model *AlbumModel) IncreaseNumPictures(objectId interface{}, delta int) {
+	model.C.UpdateId(objectId,
+		bson.M{"$inc": bson.M{"num_pictures": delta}},
+	)
 }
 
 func (model *AlbumModel) Create(params system.Params) (album *AlbumData, err error) {
@@ -84,19 +90,92 @@ func (model *AlbumModel) Create(params system.Params) (album *AlbumData, err err
 	}
 
 	album = &AlbumData{
-		Id:        bson.NewObjectId(),
-		Name:      params.Get("name"),
-		Tags:      tags,
-		Location:  location,
-		DateRange: dateRange,
-		Public:    ParseBool(params.Get("public")),
-		NumPhotos: 0,
-		User:      user.Id,
+		Id:          bson.NewObjectId(),
+		Name:        params.Get("name"),
+		Tags:        tags,
+		Location:    location,
+		DateRange:   dateRange,
+		Public:      ParseBool(params.Get("public")),
+		NumPictures: 0,
+		User:        user.Id,
 	}
 
 	err = model.C.Insert(album)
 
+	if err == nil {
+		go Album.PopulateWithPictures(album)
+	}
+
 	return
+}
+
+func (model *AlbumModel) PopulateWithPictures(album *AlbumData) {
+	var err error
+	var Text string
+
+	if err := model.Connect(); err != nil {
+		return
+	}
+
+	if err = Notification.Connect(); err != nil {
+		return
+	}
+
+	if err = Picture.Connect(); err != nil {
+		return
+	}
+
+	start := NotificationData{
+		Id:   bson.NewObjectId(),
+		User: album.User,
+		Text: fmt.Sprintf("We are populating %s with photos. Hold still.", album.Name),
+	}
+	Notification.C.Insert(start)
+
+	query := bson.M{
+		"metadata.user": album.User,
+		"metadata.tags": bson.M{"$in": album.Tags.All()},
+		"metadata.location": bson.M{
+			"$near": bson.M{
+				"$geometry": bson.M{
+					"type": "Point",
+					"coordinates": []float64{
+						album.Location.Longitude,
+						album.Location.Latitude,
+					},
+				},
+				"$maxDistance": 2000,
+			},
+		},
+		"metadata.album": bson.M{
+			"$exists": false,
+		},
+		"metadata.date": bson.M{
+			"$gte": album.DateRange.Start,
+			"$lte": album.DateRange.End,
+		},
+	}
+
+	info, err := Picture.C.UpdateAll(query, bson.M{
+		"$set": bson.M{
+			"metadata.album": album.Id,
+		},
+	})
+
+	if err != nil {
+		Text = fmt.Sprintf("There were problems with the population: %s", err.Error())
+	} else {
+		model.IncreaseNumPictures(album.Id, info.Updated)
+		Text = fmt.Sprintf("We have added %d photos to %s.", info.Updated, album.Name)
+	}
+
+	finish := NotificationData{
+		Id:   bson.NewObjectId(),
+		User: album.User,
+		Text: Text,
+	}
+
+	Notification.C.Insert(finish)
 }
 
 func (model *AlbumModel) FindByUser(params system.Params) (albums []*AlbumData, err error) {
@@ -161,7 +240,7 @@ func (model *AlbumModel) Edit(params system.Params) (*AlbumData, error) {
 	if !ok {
 		return nil, errors.New("Missing album!")
 	}
-	
+
 	album.Name = params.Get("name")
 	album.Public = ParseBool(params.Get("public"))
 
@@ -178,9 +257,20 @@ func (model *AlbumModel) FindForPicture(picture *PictureMeta) *AlbumData {
 	album := NewAlbumData()
 
 	query := bson.M{
-		"user":             picture.User,
-		"tags":             bson.M{"$all": picture.Tags.All()},
-		"location.name":    picture.Location.Name,
+		"user": picture.User,
+		"tags": bson.M{"$in": picture.Tags.All()},
+		"location": bson.M{
+			"$near": bson.M{
+				"$geometry": bson.M{
+					"type": "Point",
+					"coordinates": []float64{
+						picture.Location.Longitude,
+						picture.Location.Latitude,
+					},
+				},
+				"$maxDistance": 2000,
+			},
+		},
 		"date_range.start": bson.M{"$lte": picture.Date},
 		"date_range.end":   bson.M{"$gte": picture.Date},
 	}
@@ -197,7 +287,6 @@ func (model *AlbumModel) Remove(objectId string) (err error) {
 	err = model.C.Remove(bson.M{"_id": bson.ObjectIdHex(objectId)})
 	return
 }
-
 
 func ParseBool(input string) bool {
 	if input == "" {

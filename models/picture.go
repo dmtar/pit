@@ -147,6 +147,7 @@ func (model *PictureModel) Create(params system.Params, formFile multipart.File)
 
 	if album != nil {
 		picture.Album = album.Id
+		Album.IncreaseNumPictures(album.Id, 1)
 	}
 
 	file, err := model.Grid.Create(params.Get("fileName"))
