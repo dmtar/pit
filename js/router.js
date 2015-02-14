@@ -188,7 +188,11 @@ app.Router = Backbone.Router.extend({
   removeAlbum: function(objectId) {
     if (app.CurrentUser.id) {
       var albumModel = new app.AlbumModel({id: objectId});
-      albumModel.destroy();
+      albumModel.destroy({
+        success: function() {
+          Backbone.history.navigate("#album/list", true);
+        }
+      });
     }
   },
 
