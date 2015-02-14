@@ -10,6 +10,7 @@ app.Router = Backbone.Router.extend({
     "album/add": "addAlbum",
     "album/edit/:objectId": "editAlbum",
     "album/list": "listAlbums",
+    "album/:objectId/pictures": "listAlbumPictures",
     "album/remove/:objectId": "removeAlbum",
     "picture/upload": "uploadPicture",
     "picture/view/:objectId": "viewPicture",
@@ -189,6 +190,22 @@ app.Router = Backbone.Router.extend({
       var albumModel = new app.AlbumModel({id: objectId});
       albumModel.destroy();
     }
+  },
+
+  listAlbumPictures: function(objectId) {
+    var albumModel = new app.AlbumModel();
+    $.ajax({
+      type: "GET",
+      async: false,
+      url: albumModel.urlRoot + objectId + "/pictures",
+      dataType: "json",
+      success: function(data) {
+        $('#main').html(new app.ListAlbumPictures().render(data).el);
+      },
+      error: function(data) {
+        Backbone.trigger('flash', { message: data.responseJSON.error, type: 'warning' });
+      }
+    });
   },
 
   addSelctize: function(selector) {
