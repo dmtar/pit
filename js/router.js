@@ -10,6 +10,7 @@ app.Router = Backbone.Router.extend({
     "album/add": "addAlbum",
     "album/edit/:objectId": "editAlbum",
     "album/list": "listAlbums",
+    "album/remove/:objectId": "removeAlbum",
     "picture/upload": "uploadPicture",
     "picture/view/:objectId": "viewPicture",
   },
@@ -167,6 +168,27 @@ app.Router = Backbone.Router.extend({
         });
       }
     });
+  },
+
+  listAlbums: function() {
+    if (app.CurrentUser.id) {
+      var albumModel = new app.AlbumModel();
+      albumModel.fetch({
+        success: function(data) {
+          var albums = data.attributes;
+          $('#main').html(new app.ListAlbumsView().render(albums).el);
+        }
+      });
+
+      this.addSelctize('.albumListingTags');
+    }
+  },
+
+  removeAlbum: function(objectId) {
+    if (app.CurrentUser.id) {
+      var albumModel = new app.AlbumModel({id: objectId});
+      albumModel.destroy();
+    }
   },
 
   addSelctize: function(selector) {

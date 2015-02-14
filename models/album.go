@@ -193,6 +193,12 @@ func (model *AlbumModel) FindForPicture(picture *PictureMeta) *AlbumData {
 
 }
 
+func (model *AlbumModel) Remove(objectId string) (err error) {
+	err = model.C.Remove(bson.M{"_id": bson.ObjectIdHex(objectId)})
+	return
+}
+
+
 func ParseBool(input string) bool {
 	if input == "" {
 		return false

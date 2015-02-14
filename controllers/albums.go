@@ -27,6 +27,7 @@ func (controller *AlbumsController) Routes() (root *web.Mux) {
 	root = web.New()
 	root.Use(gojiMiddleware.SubRouter)
 	root.Get("/", Albums.FindByUser)
+	root.Delete("/:objectId", Albums.Remove)
 	root.Post("/new", Albums.New)
 	root.Get("/:objectId", Albums.Find)
 	root.Get("/:objectId/pictures", Albums.GetPictures)
@@ -146,5 +147,18 @@ func (controller *AlbumsController) Edit(c web.C, w http.ResponseWriter, r *http
 		controller.Error(w, err)
 	} else {
 		controller.Write(w, album)
+	}
+}
+
+func (controller *AlbumsController) Remove(c web.C, w http.ResponseWriter, r *http.Request) {
+	currentUser := controller.GetCurrentUser(c)
+	if(currentUser != nil) {
+		if err := controller.M.Remove(c.URLParams["objectId"]); err != nil {
+			controller.Error(w, errors.New("Sorry something went wrong. The album cannot be removed right now!"))
+			return
+		} else {
+			controller.Write(w, "The album is removed!")
+			return
+		}
 	}
 }
