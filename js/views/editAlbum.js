@@ -8,10 +8,10 @@ app.EditAlbumView = Backbone.View.extend({
     var albumModel = new app.AlbumModel({
       "id": $("#albumId").val(),
       "name": $("#albumName").val(),
-      "public": $("#isPublic").val()
+      "public": $("#isPublic").is(":checked")
     });
 
-    albumModel.save({
+    albumModel.save({}, {
       success: function(album, response) {
         Backbone.trigger('flash', { message: "Success!", type: 'success' });
       },

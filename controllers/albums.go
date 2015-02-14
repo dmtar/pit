@@ -116,12 +116,11 @@ func (controller *AlbumsController) New(c web.C, w http.ResponseWriter, r *http.
 func (controller *AlbumsController) Edit(c web.C, w http.ResponseWriter, r *http.Request) {
 	params := controller.GetParams(c)
 	currentUser := controller.GetCurrentUser(c)
-	// requiredParams := []string{"name", "public"}
-
-	// if err := params.Required(requiredParams...); err != nil {
-	// 	controller.Error(w, err)
-	// 	return
-	// }
+	requiredParams := []string{"name"}
+	if err := params.Required(requiredParams...); err != nil {
+		controller.Error(w, err)
+		return
+	}
 
 	if currentUser == nil {
 		controller.Error(w, errors.New("You must be logged in to edit an album!"))
@@ -152,7 +151,7 @@ func (controller *AlbumsController) Edit(c web.C, w http.ResponseWriter, r *http
 
 func (controller *AlbumsController) Remove(c web.C, w http.ResponseWriter, r *http.Request) {
 	currentUser := controller.GetCurrentUser(c)
-	if(currentUser != nil) {
+	if currentUser != nil {
 		if err := controller.M.Remove(c.URLParams["objectId"]); err != nil {
 			controller.Error(w, errors.New("Sorry something went wrong. The album cannot be removed right now!"))
 			return

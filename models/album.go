@@ -113,7 +113,7 @@ func (model *AlbumModel) PopulateWithPictures(album *AlbumData) {
 	var err error
 	var Text string
 
-	if err := model.Connect(); err != nil {
+	if err = model.Connect(); err != nil {
 		return
 	}
 
