@@ -43,6 +43,8 @@ app.Router = Backbone.Router.extend({
         },
         true
       );
+
+      that.addSelctize('#pictureTags');
     }
   },
 
@@ -129,6 +131,8 @@ app.Router = Backbone.Router.extend({
         true
       );
     }
+
+    that.addSelctize('#albumTags');
   },
 
   editAlbum: function(objectId) {
@@ -154,12 +158,27 @@ app.Router = Backbone.Router.extend({
           false
         );
 
+        that.addSelctize('#albumTags');
+
         var latLng = new google.maps.LatLng(album.location.lat, album.location.lng);
         new google.maps.Marker({
             position: latLng,
             map: editAlbumMap
         });
       }
+    });
+  },
+
+  addSelctize: function(selector) {
+    $(selector).selectize({
+        delimiter: ',',
+        persist: false,
+        create: function(input) {
+            return {
+                value: input,
+                text: input
+            }
+        }
     });
   },
 
