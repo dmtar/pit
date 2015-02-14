@@ -9,7 +9,7 @@ app.ListAlbumPictures = Backbone.View.extend({
     } else {
       this.album = {
         toJSON: function() {
-                  return {name: "My pictures", tags: ""}
+          return {name: "My pictures", tags: ""}
         }
       };
     }

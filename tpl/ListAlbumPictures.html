@@ -6,7 +6,10 @@
   <div class="row">
     <% _.each(pics, function(pic){ %>
     <div class="col-md-3 col-sm-4 col-xs-6">
-      <a href="/pictures/file/<%=pic.id%>" title="<%=pic.name%> | <%=pic.location.name%> | <%=pic.tags%>" data-gallery>
+      <a href="/pictures/file/<%=pic.id%>"
+        title="<%=pic.name%> | <%=pic.location.name%> | <%=pic.tags%>"
+        data-description="This is <%=pic.id%>."
+        data-gallery>
         <img src="/pictures/file/<%=pic.id%>" class="img-responsive album_gallery" alt="<%=pic.name%> | <%=pic.location.name%>">
       </a>
     </div>
@@ -17,6 +20,7 @@
 <div id="blueimp-gallery" class="blueimp-gallery blueimp-gallery-controls">
     <div class="slides"></div>
     <h3 class="title"></h3>
+    <p class="description"></p>
     <a class="prev">‹</a>
     <a class="next">›</a>
     <a class="close">×</a>
@@ -29,8 +33,21 @@ document.getElementById('links').onclick = function (event) {
     event = event || window.event;
     var target = event.target || event.srcElement,
         link = target.src ? target.parentNode : target,
-        options = {index: link, event: event},
         links = this.getElementsByTagName('a');
-    blueimp.Gallery(links, options);
+        blueimp.Gallery(
+          links,
+          {
+            index: link,
+            event: event,
+            onslide: function (index, slide) {
+              var text = this.list[index].getAttribute('data-description');
+              var node = this.container.find('.description');
+              node.empty();
+              if (text) {
+                  node[0].appendChild(document.createTextNode(text));
+              }
+            }
+          }
+        );
 };
 </script>

@@ -34,5 +34,16 @@ img.album_gallery {
 img.album_gallery:hover {
   filter: none; /* IE6-9 */
   -webkit-filter: grayscale(0); /* Google Chrome, Safari 6+ & Opera 15+ */
- 
+}
+
+.blueimp-gallery > .description {
+  position: absolute;
+  bottom: 10px;
+  left: 200px;
+  color: #fff;
+  display: none;
+}
+
+.blueimp-gallery-controls > .description {
+  display: block;
 }
