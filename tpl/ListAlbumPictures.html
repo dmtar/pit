@@ -34,17 +34,19 @@ document.getElementById('links').onclick = function (event) {
     var target = event.target || event.srcElement,
         link = target.src ? target.parentNode : target,
         links = this.getElementsByTagName('a');
-    var galler = blueimp.Gallery(
+    window.gallery = blueimp.Gallery(
           links,
           {
             index: link,
             event: event,
+            toggleControlsOnReturn: false,
+            toggleSlideshowOnSpace: false,
             onslide: function (index, slide) {
               var objectId = this.list[index].getAttribute('data-id');
               var node = this.container.find('.details-btn');
               node.empty();
               if (objectId) {
-                node[0].innerHTML = '<a class="btn btn-primary" href="#picture/view/'+objectId+'"> View Details </a>';
+                node[0].innerHTML = '<a class="btn btn-primary pictureDetails" href="#picture/view/'+objectId+'"> View Details </a>';
               }
             }
           }

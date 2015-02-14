@@ -1,5 +1,6 @@
 app.ListAlbumPictures = Backbone.View.extend({
   events: {},
+
   initialize: function(objectId, pictures) {
     this.pictures = pictures;
     if (objectId != 0) {
