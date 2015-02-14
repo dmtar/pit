@@ -2,6 +2,7 @@ package models
 
 import (
 	"errors"
+	"fmt"
 	"io"
 	"mime/multipart"
 	"strings"
@@ -22,13 +23,14 @@ type PictureFile struct {
 }
 
 type PictureMeta struct {
-	Id       bson.ObjectId `bson:"_id,omitempty" json:"id,omitempty"`
-	Name     string        `bson:"name" json:"name"`
-	Tags     *tagit.Tags   `bson:"tags" json:"tags"`
-	Location Location      `bson:"location" json:"location"`
-	Date     time.Time     `bson:"date" json:"date"`
-	Album    bson.ObjectId `bson:"album,omitempty" json:"album,omitempty"`
-	User     bson.ObjectId `bson:"user" json:"user"`
+	Id       bson.ObjectId   `bson:"_id,omitempty" json:"id,omitempty"`
+	Name     string          `bson:"name" json:"name"`
+	Tags     *tagit.Tags     `bson:"tags" json:"tags"`
+	Location Location        `bson:"location" json:"location"`
+	Date     time.Time       `bson:"date" json:"date"`
+	Album    bson.ObjectId   `bson:"album,omitempty" json:"album,omitempty"`
+	User     bson.ObjectId   `bson:"user" json:"user"`
+	Likes    []bson.ObjectId `bson:"likes" json:"likes"`
 }
 
 func NewPictureMeta() *PictureMeta {
@@ -231,6 +233,31 @@ func (model *PictureModel) FindByUser(objectId string) (pictures []*PictureMeta,
 	}
 
 	return pictures, err
+}
+
+func (model *PictureModel) Like(params system.Params) error {
+
+	user := params.GetI("user").(*UserData)
+	picture := params.GetI("picture").(*PictureMeta)
+
+	query := bson.M{
+		"_id":            picture.Id,
+		"metadata.user":  bson.M{"$ne": user.Id},
+		"metadata.likes": bson.M{"$nin": []bson.ObjectId{user.Id}},
+	}
+
+	err := model.C.Update(query, bson.M{
+		"$addToSet": bson.M{"metadata.likes": user.Id},
+	})
+
+	if err == nil {
+		Notification.Send(
+			picture.User,
+			fmt.Sprintf("%s, liked your picture %s!", user.DisplayName, picture.Name),
+		)
+	}
+
+	return err
 }
 
 // func (model *PictureModel) CreateThumbnail(file *GridFile) {

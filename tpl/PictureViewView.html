@@ -12,12 +12,16 @@
             </dl>
           </div>
         </div>
-        <div class="panel panel-danger">
-          <div class="panel-heading"> <h4>Actions</h4> </div>
-          <div class="panel-body">
-            <a class="btn btn-default" href="/#picture/edit/<%=picture.id%>">Edit</a>
+        <% if (picture.user == user.id) { %>
+          <div class="panel panel-danger">
+            <div class="panel-heading"> <h4>Actions</h4> </div>
+            <div class="panel-body">
+              <a class="btn btn-default" href="/#picture/edit/<%=picture.id%>">Edit</a>
+            </div>
           </div>
-        </div>
+          <%} else if (user.id != undefined && picture.likes == undefined || picture.likes.indexOf(user.id) == -1) {%>
+            <button class="btn btn-primary" id="like">Like</button>
+          <%}%>
       </div>
     </div>
   </div>

@@ -57,6 +57,14 @@ func (model *NotificationModel) Create(params system.Params) (notification *Noti
 	return
 }
 
+func (model *NotificationModel) Send(userId bson.ObjectId, text string) {
+	notification := NotificationData{
+		Id:   bson.NewObjectId(),
+		User: userId,
+		Text: text,
+	}
+	Notification.C.Insert(notification)
+}
 func (model *NotificationModel) Pop(params system.Params) (notification *NotificationData, err error) {
 	if err := model.Connect(); err != nil {
 		return nil, err

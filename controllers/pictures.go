@@ -33,12 +33,33 @@ func (controller *PicturesController) Routes() (root *web.Mux) {
 	root.Use(gojiMiddleware.SubRouter)
 	root.Get("/", Pictures.FindByUser)
 	root.Post("/", Pictures.New)
+	root.Post("/like/:objectId", Pictures.Like)
 	root.Get("/:objectId", Pictures.Find)
 	root.Get("/canview/:objectId", Pictures.CanBeViewed)
 	root.Get("/file/:objectId", Pictures.GetFile)
 	root.Put("/:objectId", Pictures.Edit)
 	root.Delete("/remove/:objectId", Pictures.Remove)
 	return
+}
+
+func (controller *PicturesController) Like(c web.C, w http.ResponseWriter, r *http.Request) {
+	currentUser := controller.GetCurrentUser(c)
+	if currentUser == nil {
+		controller.Error(w, errors.New("You must be logged in to like a picture!"))
+		return
+	}
+	picture, err := controller.M.Find(c.URLParams["objectId"])
+	if err != nil {
+		controller.Error(w, err)
+	}
+	params := system.Params{"user": currentUser, "picture": picture}
+
+	if err := controller.M.Like(params); err != nil {
+		controller.Error(w, err)
+	} else {
+		controller.Write(w, bson.M{"success": true})
+	}
+
 }
 
 func (controller *PicturesController) FindByUser(c web.C, w http.ResponseWriter, r *http.Request) {
@@ -84,6 +105,7 @@ func (controller *PicturesController) GetFile(c web.C, w http.ResponseWriter, r 
 			return
 		}
 
+		w.Header().Set("Content-Type", file.ContentType())
 		_, err = io.Copy(w, file)
 
 		if err != nil {
@@ -91,7 +113,6 @@ func (controller *PicturesController) GetFile(c web.C, w http.ResponseWriter, r 
 			return
 		}
 
-		w.Header().Set("Content-Type", file.ContentType())
 	} else {
 		controller.Error(w, err)
 	}

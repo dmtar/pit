@@ -37,7 +37,6 @@ function popNotification() {
         url: "/notifications/pop",
         type: "GET",
         dataType: 'json',
-        cache: false,
         success: function (data) {
           Backbone.trigger('flash', { message: data.text, type: 'info', persist: true });
         },
