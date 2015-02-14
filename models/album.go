@@ -49,7 +49,10 @@ func NewAlbumModel(collection string) *AlbumModel {
 func (model *AlbumModel) Find(objectId string) (album *AlbumData, err error) {
 	album = NewAlbumData()
 	err = model.MgoFind(objectId, album)
-	album.Statistics = model.albumStatistics(album.Id)
+
+	if album.Id.Hex() != "" {
+		album.Statistics = model.albumStatistics(album.Id)
+	}
 
 	return
 }
@@ -59,6 +62,7 @@ func (model *AlbumModel) albumStatistics(objectId interface{}) (result []Count) 
 	if err := Picture.Connect(); err != nil {
 		return
 	}
+
 	query := []bson.M{
 		{"$match": bson.M{"metadata.album": objectId}},
 		{"$unwind": "$metadata.tags"},
@@ -71,7 +75,7 @@ func (model *AlbumModel) albumStatistics(objectId interface{}) (result []Count) 
 	pipe := Picture.C.Pipe(query)
 
 	if err := pipe.All(&result); err != nil {
-		fmt.Println("%+v\n", err)
+		fmt.Printf("%+v\n", err)
 	}
 
 	return
@@ -233,7 +237,9 @@ func (model *AlbumModel) FindByUser(params system.Params) (albums []*AlbumData, 
 	err = model.C.Find(query).Sort("-_id").All(&albums)
 	if err == nil {
 		for _, album := range albums {
-			album.Statistics = model.albumStatistics(album.Id)
+			if album.Id.Hex() != "" {
+				album.Statistics = model.albumStatistics(album.Id)
+			}
 		}
 	}
 
@@ -252,7 +258,9 @@ func (model *AlbumModel) Public() (albums []*AlbumData, err error) {
 	err = model.C.Find(query).Sort("-_id").All(&albums)
 	if err == nil {
 		for _, album := range albums {
-			album.Statistics = model.albumStatistics(album.Id)
+			if album.Id.Hex() != "" {
+				album.Statistics = model.albumStatistics(album.Id)
+			}
 		}
 	}
 
@@ -342,6 +350,16 @@ func (model *AlbumModel) FindForPicture(picture *PictureMeta) *AlbumData {
 }
 
 func (model *AlbumModel) Remove(objectId string) (err error) {
+	albumId = bson.ObjectIdHex(objectId)
+	err = Picture.C.UpdateAll(
+		bson.M{"metadata.album": objectId},
+		bson.M{"$unset": bson.M{"metadata.album": ""}},
+	)
+
+	if err != nil {
+		return
+	}
+
 	err = model.C.Remove(bson.M{"_id": bson.ObjectIdHex(objectId)})
 	return
 }
