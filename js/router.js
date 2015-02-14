@@ -264,8 +264,8 @@ app.Router = Backbone.Router.extend({
         persist: false,
         create: function(input) {
             return {
-                value: input,
-                text: input
+                value: input.toLowerCase(),
+                text: input.toLowerCase()
             }
         }
     });

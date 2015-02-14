@@ -27,6 +27,7 @@ func (application *Application) Init() {
 	application.dbSession, err = mgo.Dial("localhost")
 	check(err)
 	application.DB = application.dbSession.DB("pit")
+	application.DB.Login("pit", "pitter")
 	go application.CreateIndexes()
 }
 
@@ -34,6 +35,8 @@ func (application *Application) DBSession() *mgo.Session {
 	var err error
 	if application.dbSession.Ping() != nil {
 		application.dbSession, err = mgo.Dial("localhost")
+		application.DB = application.dbSession.DB("pit")
+		application.DB.Login("pit", "pitter")
 		check(err)
 	}
 

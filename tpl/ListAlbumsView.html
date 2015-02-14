@@ -19,8 +19,8 @@
       </span>
     </a>
     <% if (album.user == app.CurrentUser.id) {%>
-      <a href="#album/remove/<%= _.escape(album.id) %>" class="list-group-item active">Remove</a>
-      <a href="#album/edit/<%= _.escape(album.id) %>" class="list-group-item active">Edit</a>
+      <a href="#album/remove/<%= _.escape(album.id) %>" class="list-group-item">Remove</a>
+      <a href="#album/edit/<%= _.escape(album.id) %>" class="list-group-item">Edit</a>
     <%}%>
   </div>
   <% }); %>
