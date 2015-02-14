@@ -31,6 +31,7 @@ func (application *Application) CreateIndexes() {
 	application.createIndexesOnPictures()
 	application.createIndexesOnAlbums()
 	application.createIndexesOnNotifications()
+	application.createIndexesOnUsers()
 
 }
 
@@ -92,6 +93,17 @@ func (application *Application) createIndexesOnAlbums() {
 	err = collection.EnsureIndex(mgo.Index{
 		Key:        []string{"user"},
 		Background: true,
+	})
+	check(err)
+}
+
+func (application *Application) createIndexesOnUsers() {
+	var err error
+	collection := application.db.C("users")
+	err = collection.EnsureIndex(mgo.Index{
+		Key:        []string{"email"},
+		Background: true,
+		Unique:     true,
 	})
 	check(err)
 }
