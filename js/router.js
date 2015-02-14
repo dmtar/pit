@@ -24,11 +24,14 @@ app.Router = Backbone.Router.extend({
 
   initialize: function () {
     $('header').html(new app.HeaderView().render().el);
-    $('#main').html(new app.HomeView().render().el);
   },
 
   home: function() {
-    $('#main').html(new app.HomeView().render().el);
+    if (app.CurrentUser.id != undefined) {
+      Backbone.history.navigate("album/list", true)
+    } else {
+      $('#main').html(new app.HomeView().render().el);
+    }
   },
 
   uploadPicture: function() {
