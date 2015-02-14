@@ -194,6 +194,28 @@ func (model *PictureModel) FindByAlbum(albumId string) (pictures []*PictureMeta,
 
 }
 
+func (model *PictureModel) FindByUser(objectId string) (pictures []*PictureMeta, err error) {
+	if !bson.IsObjectIdHex(objectId) {
+		return nil, errors.New("The provided objectID is not valid!")
+	}
+
+	if err := model.Connect(); err != nil {
+		return nil, err
+	}
+
+	files := make([]*PictureFiles, 0)
+	pictures = make([]*PictureMeta, 0)
+
+	err = model.Grid.Find(bson.M{"metadata.user": bson.ObjectIdHex(objectId)}).All(&files)
+
+	for _, file := range files {
+		file.Metadata.Id = file.Id
+		pictures = append(pictures, &file.Metadata)
+	}
+
+	return pictures, err
+}
+
 // func (model *PictureModel) CreateThumbnail(file *GridFile) {
 // 	//TODO: Create a thumb for the picture, save it somewhere
 // }

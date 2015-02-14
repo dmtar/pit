@@ -13,6 +13,7 @@ app.Router = Backbone.Router.extend({
     "album/public": "listPublicAlbums",
     "album/:objectId/pictures": "listAlbumPictures",
     "album/remove/:objectId": "removeAlbum",
+    "pictures": "listMyPictures",
     "picture/upload": "uploadPicture",
     "picture/view/:objectId": "viewPicture",
   },
@@ -221,6 +222,21 @@ app.Router = Backbone.Router.extend({
       dataType: "json",
       success: function(data) {
         $('#main').html(new app.ListAlbumPictures(objectId, data).render().el);
+      },
+      error: function(data) {
+        Backbone.trigger('flash', { message: data.responseJSON.error, type: 'warning' });
+      }
+    });
+  },
+
+  listMyPictures: function() {
+    $.ajax({
+      type: "GET",
+      async: false,
+      url: "pictures/",
+      dataType: "json",
+      success: function(data) {
+        $('#main').html(new app.ListAlbumPictures(0, data).render().el);
       },
       error: function(data) {
         Backbone.trigger('flash', { message: data.responseJSON.error, type: 'warning' });

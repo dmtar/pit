@@ -2,9 +2,17 @@ app.ListAlbumPictures = Backbone.View.extend({
   events: {},
   initialize: function(objectId, pictures) {
     this.pictures = pictures;
-    this.album = new app.AlbumModel({id: objectId});
-    this.album.fetch();
-    this.album.on('change', this.render, this);
+    if (objectId != 0) {
+      this.album = new app.AlbumModel({id: objectId});
+      this.album.fetch();
+      this.album.on('change', this.render, this);
+    } else {
+      this.album = {
+        toJSON: function() {
+                  return {name: "My pictures", tags: ""}
+        }
+      };
+    }
   },
 
   render: function () {

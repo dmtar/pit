@@ -12,7 +12,13 @@
         <ul class="nav navbar-nav navbar-left">
           <% if (user.id == undefined) { %>
           <%} else {%>
-            <li class="upload-menu"><a href="#picture/upload">Upload</a></li>
+            <li class="dropdown pull-right">
+              <a href="#pictures" class="dropdown-toggle" data-toggle="dropdown" role="button">Pictures</a>
+              <ul class="dropdown-menu" role="menu">
+                <li class="my-pictures-menu"><a href="#pictures">My Pictures</a></li>
+                <li class="upload-menu"><a href="#picture/upload">Upload</a></li>
+              </ul>
+            </li>
             <li class="dropdown pull-right">
               <a href="#album" class="dropdown-toggle" data-toggle="dropdown" role="button">Albums</a>
               <ul class="dropdown-menu" role="menu">

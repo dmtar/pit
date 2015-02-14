@@ -31,12 +31,26 @@ func NewPicturesController() *PicturesController {
 func (controller *PicturesController) Routes() (root *web.Mux) {
 	root = web.New()
 	root.Use(gojiMiddleware.SubRouter)
+	root.Get("/", Pictures.FindByUser)
 	root.Post("/new", Pictures.New)
 	root.Get("/:objectId", Pictures.Find)
 	root.Get("/canview/:objectId", Pictures.CanBeViewed)
 	root.Get("/file/:objectId", Pictures.GetFile)
 	root.Delete("/remove/:objectId", Pictures.Remove)
 	return
+}
+
+func (controller *PicturesController) FindByUser(c web.C, w http.ResponseWriter, r *http.Request) {
+	currentUser := controller.GetCurrentUser(c)
+	if currentUser == nil {
+		controller.Error(w, errors.New("You must be logged in to view your picture!"))
+		return
+	}
+	if pictures, err := controller.M.FindByUser(currentUser.Id.Hex()); err != nil {
+		controller.Error(w, err)
+	} else {
+		controller.Write(w, pictures)
+	}
 }
 
 func (controller *PicturesController) CanBeViewed(c web.C, w http.ResponseWriter, r *http.Request) {
