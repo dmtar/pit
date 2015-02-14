@@ -57,12 +57,12 @@ func (model *NotificationModel) Create(params system.Params) (notification *Noti
 	return
 }
 
-func (model *NotificationModel) GetForUser(params system.Params) (notifications []*NotificationData, err error) {
+func (model *NotificationModel) Pop(params system.Params) (notification *NotificationData, err error) {
 	if err := model.Connect(); err != nil {
 		return nil, err
 	}
 
-	notifications = make([]*NotificationData, 0)
+	notification = &NotificationData{}
 
 	user, ok := params.GetI("user").(*UserData)
 	if !ok || user == nil {
@@ -71,7 +71,12 @@ func (model *NotificationModel) GetForUser(params system.Params) (notifications 
 
 	err = model.C.Find(bson.M{
 		"user": user.Id,
-	}).Sort("-_id").All(&notifications)
+	}).Sort("_id").One(notification)
+
+	if err == nil && notification.Id.Hex() != "" {
+		model.C.RemoveId(notification.Id)
+	}
+
 	return
 }
 

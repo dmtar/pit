@@ -26,9 +26,7 @@ func NewNotificationsController() *NotificationsController {
 func (controller *NotificationsController) Routes() (root *web.Mux) {
 	root = web.New()
 	root.Use(gojiMiddleware.SubRouter)
-	root.Get("/", Notifications.GetForUser)
-	root.Get("/:objectId", Notifications.Find)
-	root.Delete("/:objectId", Notifications.Delete)
+	root.Get("/pop", Notifications.Pop)
 	return
 }
 
@@ -45,7 +43,7 @@ func (controller *NotificationsController) Find(c web.C, w http.ResponseWriter, 
 	}
 }
 
-func (controller *NotificationsController) GetForUser(c web.C, w http.ResponseWriter, r *http.Request) {
+func (controller *NotificationsController) Pop(c web.C, w http.ResponseWriter, r *http.Request) {
 	currentUser := controller.GetCurrentUser(c)
 
 	if currentUser == nil {
@@ -53,7 +51,7 @@ func (controller *NotificationsController) GetForUser(c web.C, w http.ResponseWr
 		return
 	}
 
-	notifications, err := controller.M.GetForUser(system.Params{"user": currentUser})
+	notifications, err := controller.M.Pop(system.Params{"user": currentUser})
 
 	if err != nil {
 		controller.Error(w, err)

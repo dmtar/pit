@@ -31,6 +31,23 @@ $(function () {
 
 });
 
+function popNotification() {
+  setTimeout(function () {
+    $.ajax({
+        url: "/notifications/pop",
+        type: "GET",
+        dataType: 'json',
+        cache: false,
+        success: function (data) {
+          Backbone.trigger('flash', { message: data.text, type: 'info', persist: true });
+        },
+        error: function(){},
+        complete: popNotification
+    });
+  }, 5000);
+}
+
+
 $(document).on("ready", function () {
     app.CurrentUser = new app.UserModel();
     app.CurrentUser.getCurrentUser();
@@ -50,6 +67,7 @@ $(document).on("ready", function () {
           Backbone.history.start();
           Backbone.Flash.initialize({el: "#flashes"});
           $("#loading").fadeOut(1000);
+          popNotification();
       }
     );
 
