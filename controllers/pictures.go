@@ -32,10 +32,11 @@ func (controller *PicturesController) Routes() (root *web.Mux) {
 	root = web.New()
 	root.Use(gojiMiddleware.SubRouter)
 	root.Get("/", Pictures.FindByUser)
-	root.Post("/new", Pictures.New)
+	root.Post("/", Pictures.New)
 	root.Get("/:objectId", Pictures.Find)
 	root.Get("/canview/:objectId", Pictures.CanBeViewed)
 	root.Get("/file/:objectId", Pictures.GetFile)
+	root.Put("/:objectId", Pictures.Edit)
 	root.Delete("/remove/:objectId", Pictures.Remove)
 	return
 }
@@ -182,6 +183,42 @@ func (controller *PicturesController) Remove(c web.C, w http.ResponseWriter, r *
 	if err := controller.M.Remove(c.URLParams["objectId"]); err != nil {
 		controller.Error(w, err)
 	} else {
+	}
+}
+
+func (controller *PicturesController) Edit(c web.C, w http.ResponseWriter, r *http.Request) {
+	params := controller.GetParams(c)
+	currentUser := controller.GetCurrentUser(c)
+	requiredParams := []string{"name"}
+	if err := params.Required(requiredParams...); err != nil {
+		controller.Error(w, err)
+		return
+	}
+
+	if currentUser == nil {
+		controller.Error(w, errors.New("You must be logged in to edit picture!"))
+		return
+	}
+
+	picture, err := controller.M.Find(c.URLParams["objectId"])
+
+	if err != nil {
+		controller.Error(w, err)
+		return
+	}
+
+	if picture.User != currentUser.Id {
+		controller.Error(w, errors.New("This picture is not yours!"))
+		return
+	}
+
+	params.Add("user", currentUser)
+	params.Add("picture", picture)
+
+	if picture, err = controller.M.Edit(params); err != nil {
+		controller.Error(w, err)
+	} else {
+		controller.Write(w, picture)
 	}
 }
 
