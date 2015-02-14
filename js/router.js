@@ -44,7 +44,7 @@ app.Router = Backbone.Router.extend({
         true
       );
 
-      that.addSelctize('#pictureTags');
+      this.addSelctize('#pictureTags');
     }
   },
 
@@ -132,7 +132,7 @@ app.Router = Backbone.Router.extend({
       );
     }
 
-    that.addSelctize('#albumTags');
+    this.addSelctize('#albumTags');
   },
 
   editAlbum: function(objectId) {
