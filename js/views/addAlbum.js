@@ -27,7 +27,7 @@ app.AddAlbumView = Backbone.View.extend({
         Backbone.history.navigate("#album/list", true);
       },
       error: function(album, response) {
-        Backbone.trigger('flash', { message: response.responseJSON.error, type: 'warning' });
+        Backbone.trigger('flash', { message: response.responseJSON.error, type: 'danger' });
       }
     });
   },

@@ -26,6 +26,7 @@ app.PictureViewView = Backbone.View.extend({
     '  <dd><%=user.display_name || ""%></dd>     ',
   ].join("\n")),
   initialize: function(objectId) {
+    document.body.style.overflow = 'scroll';
     this.picture = new app.PictureModel({id: objectId});
     this.picture.fetch();
     this.picture.canView();

@@ -1,9 +1,24 @@
 <% if (picture.canView) { %>
-  <div class="well">
-    <img src="/pictures/file/<%=picture.id%>" class="img-rounded" width="100%"/>
-    <hr/>
-      <dl id="details" class="dl-horizontal">
-      </dl>
-      <a href="/#picture/edit/<%=picture.id%>">
+  <div class="well container">
+    <div class="row">
+      <div class="col-md-8">
+        <img src="/pictures/file/<%=picture.id%>" class="img-rounded" width="100%"/>
+      </div>
+      <div class="col-md-4">
+        <div class="panel panel-primary">
+          <div class="panel-heading"> <h4>Details</h4> </div>
+          <div class="panel-body">
+            <dl id="details" class="dl-horizontal">
+            </dl>
+          </div>
+        </div>
+        <div class="panel panel-danger">
+          <div class="panel-heading"> <h4>Actions</h4> </div>
+          <div class="panel-body">
+            <a class="btn btn-default" href="/#picture/edit/<%=picture.id%>">Edit</a>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 <% } %>

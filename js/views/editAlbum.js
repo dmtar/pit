@@ -16,7 +16,7 @@ app.EditAlbumView = Backbone.View.extend({
         Backbone.trigger('flash', { message: "Success!", type: 'success' });
       },
       error: function(album, response) {
-        Backbone.trigger('flash', { message: response.responseJSON.error, type: 'warning' });
+        Backbone.trigger('flash', { message: response.responseJSON.error, type: 'danger' });
       }
     });
   },

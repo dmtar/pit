@@ -13,7 +13,7 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
-type PictureFiles struct {
+type PictureFile struct {
 	Id          bson.ObjectId `bson:"_id,omitempty" json:"id,omitempty"`
 	UploadDate  time.Time     `bson:"uploadDate" json:"upload_date"`
 	Filename    string        `bson:"filename" json:"filename"`
@@ -134,7 +134,7 @@ func (model *PictureModel) Edit(params system.Params) (*PictureMeta, error) {
 
 	picture.Name = params.Get("name")
 
-	err := model.C.UpdateId(picture.Id, picture)
+	err := model.C.UpdateId(picture.Id, bson.M{"$set": bson.M{"metadata": picture}})
 
 	return picture, err
 }
@@ -197,7 +197,7 @@ func (model *PictureModel) FindByAlbum(albumId string) (pictures []*PictureMeta,
 		return nil, err
 	}
 
-	files := make([]*PictureFiles, 0)
+	files := make([]*PictureFile, 0)
 	pictures = make([]*PictureMeta, 0)
 
 	err = model.Grid.Find(bson.M{"metadata.album": bson.ObjectIdHex(albumId)}).All(&files)
@@ -220,7 +220,7 @@ func (model *PictureModel) FindByUser(objectId string) (pictures []*PictureMeta,
 		return nil, err
 	}
 
-	files := make([]*PictureFiles, 0)
+	files := make([]*PictureFile, 0)
 	pictures = make([]*PictureMeta, 0)
 
 	err = model.Grid.Find(bson.M{"metadata.user": bson.ObjectIdHex(objectId)}).All(&files)

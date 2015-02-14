@@ -13,9 +13,10 @@ app.EditPictureView = Backbone.View.extend({
     pictureModel.save({}, {
       success: function(picture, response) {
         Backbone.trigger('flash', { message: "Success!", type: 'success' });
+        Backbone.history.navigate("#picture/view/"+picture.id, true);
       },
       error: function(picture, response) {
-        Backbone.trigger('flash', { message: response.responseJSON.error, type: 'warning' });
+        Backbone.trigger('flash', { message: response.responseJSON.error, type: 'danger' });
       }
     });
   },

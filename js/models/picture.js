@@ -13,7 +13,7 @@ app.PictureModel = Backbone.Model.extend({
         that.set("canView", true);
       },
       error: function(data) {
-        Backbone.trigger('flash', { message: data.responseJSON.error, type: 'warning' });
+        Backbone.trigger('flash', { message: data.responseJSON.error, type: 'danger' });
         that.set("canView", false);
       }
     });

@@ -238,7 +238,7 @@ app.Router = Backbone.Router.extend({
         $('#main').html(new app.ListAlbumPictures(objectId, data).render().el);
       },
       error: function(data) {
-        Backbone.trigger('flash', { message: data.responseJSON.error, type: 'warning' });
+        Backbone.trigger('flash', { message: data.responseJSON.error, type: 'danger' });
       }
     });
   },
@@ -253,7 +253,7 @@ app.Router = Backbone.Router.extend({
         $('#main').html(new app.ListAlbumPictures(0, data).render().el);
       },
       error: function(data) {
-        Backbone.trigger('flash', { message: data.responseJSON.error, type: 'warning' });
+        Backbone.trigger('flash', { message: data.responseJSON.error, type: 'danger' });
       }
     });
   },
