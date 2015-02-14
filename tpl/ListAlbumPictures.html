@@ -1,9 +1,23 @@
-<div id="links">
-	<% _.each(pics, function(pic){ %>
-    <a href="/pictures/file/<%=pic.id%>" title="<%=pic.name%>" data-gallery>
-        <img src="/pictures/file/<%=pic.id%>" alt="<%=pic.name%>">
-    </a>
+<div id="links" class="container">
+  <div class="row">
+    <% _.each(pics, function(pic){ %>
+    <div class="col-md-3 col-sm-4 col-xs-6">
+      <a href="/pictures/file/<%=pic.id%>" title="<%=pic.name%> | <%=pic.location.name%>" data-gallery>
+        <img src="/pictures/file/<%=pic.id%>" class="img-responsive album_gallery" alt="<%=pic.name%> | <%=pic.location.name%>">
+      </a>
+    </div>
     <% }); %>
+  </div>
+</div>
+
+<div id="blueimp-gallery" class="blueimp-gallery blueimp-gallery-controls">
+    <div class="slides"></div>
+    <h3 class="title"></h3>
+    <a class="prev">‹</a>
+    <a class="next">›</a>
+    <a class="close">×</a>
+    <a class="play-pause"></a>
+    <ol class="indicator"></ol>
 </div>
 
 <script>
