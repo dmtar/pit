@@ -3,11 +3,14 @@ package controllers
 import (
 	"errors"
 	"fmt"
+	"image"
+	"image/jpeg"
 	"io"
 	"mime/multipart"
 	"net/http"
 	"strings"
 
+	"github.com/disintegration/imaging"
 	"github.com/dmtar/pit/models"
 	"github.com/dmtar/pit/system"
 	"github.com/zenazn/goji/web"
@@ -19,12 +22,14 @@ var Pictures = NewPicturesController()
 
 type PicturesController struct {
 	BaseController
-	M *models.PictureModel
+	M          *models.PictureModel
+	ThumbCache map[string]*image.NRGBA
 }
 
 func NewPicturesController() *PicturesController {
 	return &PicturesController{
-		M: models.Picture,
+		M:          models.Picture,
+		ThumbCache: make(map[string]*image.NRGBA),
 	}
 }
 
@@ -34,9 +39,11 @@ func (controller *PicturesController) Routes() (root *web.Mux) {
 	root.Get("/", Pictures.FindByUser)
 	root.Post("/", Pictures.New)
 	root.Post("/like/:objectId", Pictures.Like)
+	root.Post("/unlike/:objectId", Pictures.Unlike)
 	root.Get("/:objectId", Pictures.Find)
 	root.Get("/canview/:objectId", Pictures.CanBeViewed)
 	root.Get("/file/:objectId", Pictures.GetFile)
+	root.Get("/thumb/:objectId", Pictures.GetThumb)
 	root.Put("/:objectId", Pictures.Edit)
 	root.Delete("/remove/:objectId", Pictures.Remove)
 	return
@@ -55,6 +62,26 @@ func (controller *PicturesController) Like(c web.C, w http.ResponseWriter, r *ht
 	params := system.Params{"user": currentUser, "picture": picture}
 
 	if err := controller.M.Like(params); err != nil {
+		controller.Error(w, err)
+	} else {
+		controller.Write(w, bson.M{"success": true})
+	}
+
+}
+
+func (controller *PicturesController) Unlike(c web.C, w http.ResponseWriter, r *http.Request) {
+	currentUser := controller.GetCurrentUser(c)
+	if currentUser == nil {
+		controller.Error(w, errors.New("You must be logged in to unlike a picture!"))
+		return
+	}
+	picture, err := controller.M.Find(c.URLParams["objectId"])
+	if err != nil {
+		controller.Error(w, err)
+	}
+	params := system.Params{"user": currentUser, "picture": picture}
+
+	if err := controller.M.Unlike(params); err != nil {
 		controller.Error(w, err)
 	} else {
 		controller.Write(w, bson.M{"success": true})
@@ -112,6 +139,39 @@ func (controller *PicturesController) GetFile(c web.C, w http.ResponseWriter, r 
 			controller.Error(w, err)
 			return
 		}
+
+	} else {
+		controller.Error(w, err)
+	}
+}
+
+func (controller *PicturesController) GetThumb(c web.C, w http.ResponseWriter, r *http.Request) {
+	currentUser := controller.GetCurrentUser(c)
+	objectId := c.URLParams["objectId"]
+	picture, err := controller.M.Find(c.URLParams["objectId"])
+
+	if err != nil {
+		controller.Error(w, err)
+		return
+	}
+
+	if err := picture.CanBeViewedBy(currentUser); err == nil {
+		var dstImage *image.NRGBA
+		var ok bool
+		dstImage, ok = controller.ThumbCache[objectId]
+		if !ok {
+			file, err := controller.M.GetFile(c.URLParams["objectId"])
+			if err != nil {
+				controller.Error(w, err)
+				return
+			}
+			srcImage, _, _ := image.Decode(file)
+			dstImage = imaging.Resize(srcImage, 0, 130, imaging.Lanczos)
+			controller.ThumbCache[objectId] = dstImage
+		}
+
+		w.Header().Set("Content-Type", "image/jpeg")
+		jpeg.Encode(w, dstImage, &jpeg.Options{60})
 
 	} else {
 		controller.Error(w, err)

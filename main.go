@@ -2,6 +2,7 @@ package main
 
 import (
 	"net/http"
+	"runtime"
 
 	"github.com/lidashuang/goji-gzip"
 	"github.com/zenazn/goji"
@@ -17,6 +18,8 @@ func init() {
 }
 
 func main() {
+	runtime.GOMAXPROCS(runtime.NumCPU())
+
 	defer goji.Serve()
 	goji.Use(system.App.Session)
 	HandleIndex()

@@ -260,6 +260,24 @@ func (model *PictureModel) Like(params system.Params) error {
 	return err
 }
 
+func (model *PictureModel) Unlike(params system.Params) error {
+
+	user := params.GetI("user").(*UserData)
+	picture := params.GetI("picture").(*PictureMeta)
+
+	query := bson.M{
+		"_id":            picture.Id,
+		"metadata.user":  bson.M{"$ne": user.Id},
+		"metadata.likes": user.Id,
+	}
+
+	err := model.C.Update(query, bson.M{
+		"$pull": bson.M{"metadata.likes": user.Id},
+	})
+
+	return err
+}
+
 // func (model *PictureModel) CreateThumbnail(file *GridFile) {
 // 	//TODO: Create a thumb for the picture, save it somewhere
 // }

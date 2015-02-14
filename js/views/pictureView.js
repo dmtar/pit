@@ -2,7 +2,8 @@
 app.PictureViewView = Backbone.View.extend({
 
   events: {
-    "click #like": "likePicture"
+    "click #like": "likePicture",
+    "click #unlike": "unlikePicture"
   },
 
   details_template: _.template([
@@ -84,7 +85,24 @@ app.PictureViewView = Backbone.View.extend({
         Backbone.trigger('flash', { message: data.error, type: 'danger' });
       }
     });
+  },
 
+
+  unlikePicture: function(e) {
+    if (e) { e.preventDefault(); }
+    var that = this;
+    $.ajax({
+      type: "POST",
+      url: "/pictures/unlike/" + that.picture.id,
+      dataType: "json",
+      success: function(data) {
+        that.picture.fetch();
+        Backbone.trigger('flash', { message: "Unliked!", type: 'success' });
+      },
+      error: function(data) {
+        Backbone.trigger('flash', { message: data.error, type: 'danger' });
+      }
+    });
   }
 
 });

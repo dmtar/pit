@@ -21,6 +21,8 @@
           </div>
           <%} else if (user.id != undefined && picture.likes == undefined || picture.likes.indexOf(user.id) == -1) {%>
             <button class="btn btn-primary" id="like">Like</button>
+          <%} else if (user.id != undefined && picture.likes != undefined && picture.likes.indexOf(user.id) != -1) {%>
+            <button class="btn btn-primary" id="unlike">Unlike</button>
           <%}%>
       </div>
     </div>
