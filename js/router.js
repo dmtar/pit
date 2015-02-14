@@ -15,6 +15,7 @@ app.Router = Backbone.Router.extend({
     "album/remove/:objectId": "removeAlbum",
     "picture/upload": "uploadPicture",
     "picture/view/:objectId": "viewPicture",
+    "picture/edit/:objectId": "editPicture",
   },
 
   markers: {},
@@ -49,6 +50,19 @@ app.Router = Backbone.Router.extend({
 
       this.addSelctize('#pictureTags');
     }
+  },
+
+  editPicture: function(objectId) {
+    var pictureModel = new app.PictureModel({id: objectId});
+    var that = this;
+    pictureModel.fetch({
+      success: function(data){
+        var picture = data.attributes;
+        $('#main').html(new app.EditPictureView().render(picture).el);
+
+        that.addSelctize('#pictureTags');
+      }
+    });
   },
 
   viewPicture: function(objectId) {

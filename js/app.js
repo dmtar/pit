@@ -57,6 +57,7 @@ $(document).on("ready", function () {
        "HomeView",
         "PictureUploadView",
         "PictureViewView",
+        "EditPictureView",
         "AddAlbumView",
         "EditAlbumView",
         "ListAlbumsView",

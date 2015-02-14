@@ -122,6 +122,23 @@ func (model *PictureModel) Remove(objectId string) (err error) {
 	return nil
 }
 
+func (model *PictureModel) Edit(params system.Params) (*PictureMeta, error) {
+	if err := model.Connect(); err != nil {
+		return nil, err
+	}
+
+	picture, ok := params.GetI("picture").(*PictureMeta)
+	if !ok {
+		return nil, errors.New("Missing picture!")
+	}
+
+	picture.Name = params.Get("name")
+
+	err := model.C.UpdateId(picture.Id, picture)
+
+	return picture, err
+}
+
 func (model *PictureModel) Create(params system.Params, formFile multipart.File) (picture *PictureMeta, err error) {
 	if err := model.Connect(); err != nil {
 		return nil, err
