@@ -28,10 +28,10 @@ func (controller *AlbumsController) Routes() (root *web.Mux) {
 	root.Use(gojiMiddleware.SubRouter)
 	root.Get("/", Albums.FindByUser)
 	root.Delete("/:objectId", Albums.Remove)
-	root.Post("/new", Albums.New)
+	root.Post("/", Albums.New)
 	root.Get("/:objectId", Albums.Find)
 	root.Get("/:objectId/pictures", Albums.GetPictures)
-	root.Post("/:objectId/edit", Albums.Edit)
+	root.Put("/:objectId", Albums.Edit)
 	return
 }
 
@@ -116,12 +116,12 @@ func (controller *AlbumsController) New(c web.C, w http.ResponseWriter, r *http.
 func (controller *AlbumsController) Edit(c web.C, w http.ResponseWriter, r *http.Request) {
 	params := controller.GetParams(c)
 	currentUser := controller.GetCurrentUser(c)
-	requiredParams := []string{"name", "public"}
+	// requiredParams := []string{"name", "public"}
 
-	if err := params.Required(requiredParams...); err != nil {
-		controller.Error(w, err)
-		return
-	}
+	// if err := params.Required(requiredParams...); err != nil {
+	// 	controller.Error(w, err)
+	// 	return
+	// }
 
 	if currentUser == nil {
 		controller.Error(w, errors.New("You must be logged in to edit an album!"))

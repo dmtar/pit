@@ -5,22 +5,13 @@ app.EditAlbumView = Backbone.View.extend({
 
   editAlbum: function(e){
     e.preventDefault();
-    var albumModel = new app.AlbumModel();
-    var values = {
+    var albumModel = new app.AlbumModel({
+      "id": $("#albumId").val(),
       "name": $("#albumName").val(),
-      "location": {
-        "lat": $('#albumLocationLat').val(),
-        "lng": $('#albumLocationLng').val(),
-        "name": $("#albumLocationName").val()
-      },
-      "tags": $("#albumTags").val(),
-      "date_range": {
-        "start": new Date($("#startDate").val()).toJSON(),
-        "end": new Date($("#endDate").val()).toJSON()
-      }
-    };
+      "public": $("#isPublic").val()
+    });
 
-    albumModel.save(values, {
+    albumModel.save({
       success: function(album, response) {
         Backbone.trigger('flash', { message: "Success!", type: 'success' });
       },
@@ -32,6 +23,7 @@ app.EditAlbumView = Backbone.View.extend({
 
   render: function (album) {
       var albumTags = album.tags.join();
+
       dates = {
         start: new Date(album.date_range.start).toISOString().slice(0,10),
         end: new Date(album.date_range.end).toISOString().slice(0,10)

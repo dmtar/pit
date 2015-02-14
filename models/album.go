@@ -161,8 +161,8 @@ func (model *AlbumModel) Edit(params system.Params) (*AlbumData, error) {
 	if !ok {
 		return nil, errors.New("Missing album!")
 	}
-
-	album.Name = params.Get("Name")
+	
+	album.Name = params.Get("name")
 	album.Public = ParseBool(params.Get("public"))
 
 	err := model.C.UpdateId(album.Id, album)

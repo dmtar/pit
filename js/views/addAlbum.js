@@ -5,8 +5,7 @@ app.AddAlbumView = Backbone.View.extend({
 
   addAlbum: function(e){
     e.preventDefault();
-    var albumModel = new app.AlbumModel();
-    var values = {
+    var albumModel = new app.AlbumModel({
       "name": $("#albumName").val(),
       "location": {
         "lat": $('#albumLocationLat').val(),
@@ -19,9 +18,9 @@ app.AddAlbumView = Backbone.View.extend({
         "start": new Date($("#startDate").val()).toJSON(),
         "end": new Date($("#endDate").val()).toJSON()
       }
-    };
+    });
 
-    albumModel.save(values, {
+    albumModel.save({
       success: function(album, response) {
         Backbone.trigger('flash', { message: "Success!", type: 'success' });
       },
