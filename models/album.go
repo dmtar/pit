@@ -350,9 +350,9 @@ func (model *AlbumModel) FindForPicture(picture *PictureMeta) *AlbumData {
 }
 
 func (model *AlbumModel) Remove(objectId string) (err error) {
-	albumId = bson.ObjectIdHex(objectId)
-	err = Picture.C.UpdateAll(
-		bson.M{"metadata.album": objectId},
+	albumId := bson.ObjectIdHex(objectId)
+	_, err = Picture.C.UpdateAll(
+		bson.M{"metadata.album": albumId},
 		bson.M{"$unset": bson.M{"metadata.album": ""}},
 	)
 
@@ -360,7 +360,7 @@ func (model *AlbumModel) Remove(objectId string) (err error) {
 		return
 	}
 
-	err = model.C.Remove(bson.M{"_id": bson.ObjectIdHex(objectId)})
+	err = model.C.Remove(bson.M{"_id": albumId})
 	return
 }
 
