@@ -1,14 +1,22 @@
 <div class="well">
-	<% _.each(albums, function(album){ %>
-	<div class="list-group">
-	  <a href="#album/<%= _.escape(album.id) %>/pictures" class="list-group-item active">
-	    <p class="list-group-item-text pull-right"><%= _.escape(album.location.name) %></p>
-	    <h2 class="list-group-item-heading"><%= _.escape(album.name) %></h2>
-	    <span class="list-group-item-text albumListingTags"><%= _.escape(album.tags.join(' ')) %></span>
-	    <p class="list-group-item-text albumListingTags">Photos: <%= _.escape(album.num_photos) %></p>
-	    <a href="#album/remove/<%= _.escape(album.id) %>" class="list-group-item active">Remove</a>
-	    <a href="#album/edit/<%= _.escape(album.id) %>" class="list-group-item active">Edit</a>
-	  </a>
-	</div>
-	<% }); %>
+  <% _.each(albums, function(album){ %>
+  <div class="list-group">
+    <a href="#album/<%= _.escape(album.id) %>/pictures" class="list-group-item active">
+      <p class="list-group-item-text pull-right"><%= _.escape(album.location.name) %></p>
+      <h2 class="list-group-item-heading"><%= _.escape(album.name) %></h2>
+      <p class="list-group-item-text pull-right">Photos: <%= _.escape(album.num_pictures) %></p>
+      <span class="list-group-item-text albumListingTags">
+        <%album.tags.forEach(function(el){%>
+          <span class="label label-default">
+            <%=el%>
+          </span>
+        <%});%>
+      </span>
+    </a>
+    <% if (album.user == app.CurrentUser.id) {%>
+      <a href="#album/remove/<%= _.escape(album.id) %>" class="list-group-item active">Remove</a>
+      <a href="#album/edit/<%= _.escape(album.id) %>" class="list-group-item active">Edit</a>
+    <%}%>
+  </div>
+  <% }); %>
 </div>

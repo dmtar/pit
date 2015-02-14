@@ -27,10 +27,11 @@ func (controller *AlbumsController) Routes() (root *web.Mux) {
 	root = web.New()
 	root.Use(gojiMiddleware.SubRouter)
 	root.Get("/", Albums.FindByUser)
-	root.Delete("/:objectId", Albums.Remove)
-	root.Post("/", Albums.New)
+	root.Get("/public", Albums.Public)
 	root.Get("/:objectId", Albums.Find)
 	root.Get("/:objectId/pictures", Albums.GetPictures)
+	root.Delete("/:objectId", Albums.Remove)
+	root.Post("/", Albums.New)
 	root.Put("/:objectId", Albums.Edit)
 	return
 }
@@ -64,6 +65,7 @@ func (controller *AlbumsController) GetPictures(c web.C, w http.ResponseWriter, 
 		}
 	}
 }
+
 func (controller *AlbumsController) FindByUser(c web.C, w http.ResponseWriter, r *http.Request) {
 	currentUser := controller.GetCurrentUser(c)
 
@@ -77,6 +79,21 @@ func (controller *AlbumsController) FindByUser(c web.C, w http.ResponseWriter, r
 	})
 
 	if err != nil {
+		controller.Error(w, err)
+	} else {
+		controller.Write(w, albums)
+	}
+}
+
+func (controller *AlbumsController) Public(c web.C, w http.ResponseWriter, r *http.Request) {
+	currentUser := controller.GetCurrentUser(c)
+
+	if currentUser == nil {
+		controller.Error(w, errors.New("You must be logged in to view albums!"))
+		return
+	}
+
+	if albums, err := controller.M.Public(); err != nil {
 		controller.Error(w, err)
 	} else {
 		controller.Write(w, albums)

@@ -19,7 +19,7 @@ type AlbumData struct {
 	DateRange   DateRange     `bson:"date_range" json:"date_range"`
 	Public      bool          `bson:"public" json:"public"`
 	NumPictures int           `bson:"num_pictures" json:"num_pictures"`
-	User        bson.ObjectId `bson:"user", json:"user"`
+	User        bson.ObjectId `bson:"user" json:"user"`
 }
 
 func NewAlbumData() *AlbumData {
@@ -195,6 +195,20 @@ func (model *AlbumModel) FindByUser(params system.Params) (albums []*AlbumData, 
 	if ParseBool(params.Get("public")) {
 		query["public"] = true
 	}
+
+	err = model.C.Find(query).Sort("-_id").All(&albums)
+
+	return
+}
+
+func (model *AlbumModel) Public() (albums []*AlbumData, err error) {
+	if err := model.Connect(); err != nil {
+		return nil, err
+	}
+
+	albums = make([]*AlbumData, 0)
+
+	query := bson.M{"public": true}
 
 	err = model.C.Find(query).Sort("-_id").All(&albums)
 
