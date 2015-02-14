@@ -19,7 +19,6 @@
     <script src="/assets/bootstrap/js/bootstrap.min.js"></script>
     <script src="/assets/components/backbone-modal.js"></script>
 
-
     <link href="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.0/css/selectize.bootstrap3.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.0/js/standalone/selectize.js"></script>
 
@@ -40,6 +39,11 @@
     <script src="/js/views/listAlbums.js"></script>
     <script src="/js/views/listAlbumPictures.js"></script>
     <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&signed_in=true"></script>
+
+    <!-- Gallery -->
+    <link rel="stylesheet" href="/assets/blueimp/css/blueimp-gallery.min.css">
+    <script src="/assets/blueimp/js/jquery.blueimp-gallery.min.js"></script>
+    <!-- End gallery includes -->
   </head>
   <body>
     <div id="loading">
@@ -56,6 +60,17 @@
       <div id="main">
       </div>
     </div>
+
+    <div id="blueimp-gallery" class="blueimp-gallery">
+        <div class="slides"></div>
+        <h3 class="title"></h3>
+        <a class="prev">‹</a>
+        <a class="next">›</a>
+        <a class="close">×</a>
+        <a class="play-pause"></a>
+        <ol class="indicator"></ol>
+    </div>
+    
     <!--<div id="map-canvas" style="width:100%; height:100%; position: absolute;"></div>-->
     <footer></footer>
   </body>

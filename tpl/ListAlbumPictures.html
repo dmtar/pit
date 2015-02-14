@@ -1,7 +1,18 @@
-<div class="container">
-	<div class="row">
-		<% _.each(pics, function(pic){ %>
-		<div class="col-md-3 col-sm-4 col-xs-6"><img class="img-responsive album_gallery" src="/pictures/file/<%=pic.id%>" /></div>
-    	<% }); %>
-    </div>
+<div id="links">
+	<% _.each(pics, function(pic){ %>
+    <a href="/pictures/file/<%=pic.id%>" title="<%=pic.name%>" data-gallery>
+        <img src="/pictures/file/<%=pic.id%>" alt="<%=pic.name%>">
+    </a>
+    <% }); %>
 </div>
+
+<script>
+document.getElementById('links').onclick = function (event) {
+    event = event || window.event;
+    var target = event.target || event.srcElement,
+        link = target.src ? target.parentNode : target,
+        options = {index: link, event: event},
+        links = this.getElementsByTagName('a');
+    blueimp.Gallery(links, options);
+};
+</script>
