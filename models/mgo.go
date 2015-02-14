@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/dmtar/pit/common"
+	"github.com/dmtar/pit/system"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 )
@@ -30,14 +31,14 @@ func (model *MgoModel) Connect() (err error) {
 	if model.session != nil && model.session.Ping() == nil {
 		return nil
 	}
-
-	model.session, err = mgo.Dial("localhost")
+	model.session = system.App.DBSession
 	if err != nil {
 		return common.ServerError{
 			fmt.Errorf("Can't connect to mongo, go error: %v", err),
 		}
 	}
-	model.db = model.session.DB("pit")
+
+	model.db = system.App.DB
 	model.C = model.db.C(model.collection)
 	model.Grid = model.db.GridFS(model.gridPrefix)
 	return nil

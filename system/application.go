@@ -1,33 +1,40 @@
 package system
 
 import (
-	"fmt"
-
 	"github.com/dmtar/pit/config"
 	"github.com/gorilla/sessions"
 	"gopkg.in/mgo.v2"
 )
 
+var App = NewApplication()
+
 type Application struct {
-	Store   *sessions.CookieStore
-	db      *mgo.Database
-	session *mgo.Session
+	Store     *sessions.CookieStore
+	DB        *mgo.Database
+	DBSession *mgo.Session
+}
+
+func NewApplication() *Application {
+	app := &Application{}
+	app.Init()
+	return app
 }
 
 func (application *Application) Init() {
+	var err error
 	secret := []byte(config.Secret)
 	application.Store = sessions.NewCookieStore(secret)
+	application.DBSession, err = mgo.Dial("localhost")
+	check(err)
+	application.DB = application.DBSession.DB("pit")
 	go application.CreateIndexes()
 }
 
-func (application *Application) CreateIndexes() {
-	var err error
-	application.session, err = mgo.Dial("localhost")
-	if err != nil {
-		check(fmt.Errorf("Can't connect to mongo, go error: %v", err))
-	}
-	application.db = application.session.DB("pit")
+func (application *Application) Close() {
+	application.DBSession.Close()
+}
 
+func (application *Application) CreateIndexes() {
 	application.createIndexesOnPictures()
 	application.createIndexesOnAlbums()
 	application.createIndexesOnNotifications()
@@ -37,7 +44,7 @@ func (application *Application) CreateIndexes() {
 
 func (application *Application) createIndexesOnPictures() {
 	var err error
-	collection := application.db.C("fs.files")
+	collection := application.DB.C("fs.files")
 	err = collection.EnsureIndex(mgo.Index{
 		Key:        []string{"$2dsphere:metadata.location"},
 		Background: true,
@@ -65,7 +72,7 @@ func (application *Application) createIndexesOnPictures() {
 
 func (application *Application) createIndexesOnAlbums() {
 	var err error
-	collection := application.db.C("albums")
+	collection := application.DB.C("albums")
 	err = collection.EnsureIndex(mgo.Index{
 		Key:        []string{"$2dsphere:location"},
 		Background: true,
@@ -99,7 +106,7 @@ func (application *Application) createIndexesOnAlbums() {
 
 func (application *Application) createIndexesOnUsers() {
 	var err error
-	collection := application.db.C("users")
+	collection := application.DB.C("users")
 	err = collection.EnsureIndex(mgo.Index{
 		Key:        []string{"email"},
 		Background: true,
@@ -110,7 +117,7 @@ func (application *Application) createIndexesOnUsers() {
 
 func (application *Application) createIndexesOnNotifications() {
 	var err error
-	collection := application.db.C("notifications")
+	collection := application.DB.C("notifications")
 	err = collection.EnsureIndex(mgo.Index{
 		Key:        []string{"user"},
 		Background: true,

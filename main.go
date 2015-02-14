@@ -5,6 +5,7 @@ import (
 
 	"github.com/lidashuang/goji-gzip"
 	"github.com/zenazn/goji"
+	"github.com/zenazn/goji/graceful"
 
 	"github.com/dmtar/pit/config"
 	"github.com/dmtar/pit/controllers"
@@ -17,11 +18,13 @@ func init() {
 
 func main() {
 	defer goji.Serve()
-	app := system.Application{}
-	app.Init()
-	goji.Use(app.Session)
+	goji.Use(system.App.Session)
 	HandleIndex()
 	HandleAssets()
+	graceful.PostHook(func() {
+		system.App.Close()
+	})
+
 	goji.Handle("/*", controllers.Root())
 }
 
