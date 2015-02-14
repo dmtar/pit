@@ -4,11 +4,11 @@
     <a href="#album/<%= _.escape(album.id) %>/pictures" class="list-group-item active">
       <p class="list-group-item-text pull-right"><%= _.escape(album.location.name) %></p>
       <h2 class="list-group-item-heading"><%= _.escape(album.name) %></h2>
-      <p class="list-group-item-text pull-right">Photos: <%= _.escape(album.num_pictures) %></p>
+      <p class="list-group-item-text pull-right"><span class="label label-info">photos: <%= _.escape(album.num_pictures) %></span></p>
       <span class="list-group-item-text albumListingTags">
         <%album.tags.forEach(function(el){%>
           <span class="label label-default">
-            <%=el%>
+            <%=el%> | <%=_.find(album.statistics, function(s) { return s.id == el}).count%>
           </span>
         <%});%>
       </span>

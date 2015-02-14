@@ -2,7 +2,7 @@
   <div class="row">
     <% _.each(pics, function(pic){ %>
     <div class="col-md-3 col-sm-4 col-xs-6">
-      <a href="/pictures/file/<%=pic.id%>" title="<%=pic.name%> | <%=pic.location.name%>" data-gallery>
+      <a href="/pictures/file/<%=pic.id%>" title="<%=pic.name%> | <%=pic.location.name%> | <%=pic.tags%>" data-gallery>
         <img src="/pictures/file/<%=pic.id%>" class="img-responsive album_gallery" alt="<%=pic.name%> | <%=pic.location.name%>">
       </a>
     </div>

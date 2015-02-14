@@ -20,6 +20,12 @@ type AlbumData struct {
 	Public      bool          `bson:"public" json:"public"`
 	NumPictures int           `bson:"num_pictures" json:"num_pictures"`
 	User        bson.ObjectId `bson:"user" json:"user"`
+	Statistics  []Count       `bson:"_" json:"statistics"`
+}
+
+type Count struct {
+	Id    string `bson:"_id" json:"id"`
+	Count int    `bson:"count" json:"count"`
 }
 
 func NewAlbumData() *AlbumData {
@@ -43,11 +49,39 @@ func NewAlbumModel(collection string) *AlbumModel {
 func (model *AlbumModel) Find(objectId string) (album *AlbumData, err error) {
 	album = NewAlbumData()
 	err = model.MgoFind(objectId, album)
+	album.Statistics = model.albumStatistics(album.Id)
+
+	return
+}
+
+func (model *AlbumModel) albumStatistics(objectId interface{}) (result []Count) {
+	result = make([]Count, 0)
+	if err := Picture.Connect(); err != nil {
+		return
+	}
+	query := []bson.M{
+		{"$match": bson.M{"metadata.album": objectId}},
+		{"$unwind": "$metadata.tags"},
+		{"$group": bson.M{
+			"_id":   "$metadata.tags",
+			"count": bson.M{"$sum": 1},
+		}},
+	}
+
+	pipe := Picture.C.Pipe(query)
+
+	if err := pipe.All(&result); err != nil {
+		fmt.Println("%+v\n", err)
+	}
 
 	return
 }
 
 func (model *AlbumModel) IncreaseNumPictures(objectId interface{}, delta int) {
+	if err := model.Connect(); err != nil {
+		return
+	}
+
 	model.C.UpdateId(objectId,
 		bson.M{"$inc": bson.M{"num_pictures": delta}},
 	)
@@ -197,6 +231,11 @@ func (model *AlbumModel) FindByUser(params system.Params) (albums []*AlbumData, 
 	}
 
 	err = model.C.Find(query).Sort("-_id").All(&albums)
+	if err == nil {
+		for _, album := range albums {
+			album.Statistics = model.albumStatistics(album.Id)
+		}
+	}
 
 	return
 }
