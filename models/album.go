@@ -250,6 +250,11 @@ func (model *AlbumModel) Public() (albums []*AlbumData, err error) {
 	query := bson.M{"public": true}
 
 	err = model.C.Find(query).Sort("-_id").All(&albums)
+	if err == nil {
+		for _, album := range albums {
+			album.Statistics = model.albumStatistics(album.Id)
+		}
+	}
 
 	return
 }

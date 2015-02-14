@@ -178,7 +178,7 @@ app.Router = Backbone.Router.extend({
       albumModel.fetch({
         success: function(data) {
           var albums = data.attributes;
-          $('#main').html(new app.ListAlbumsView().render(albums).el);
+          $('#main').html(new app.ListAlbumsView().render("My Albums", albums).el);
         }
       });
 
@@ -193,7 +193,7 @@ app.Router = Backbone.Router.extend({
           dataType: 'json',
           cache: false,
           success: function (data) {
-            $('#main').html(new app.ListAlbumsView().render(data).el);
+            $('#main').html(new app.ListAlbumsView().render("Public Albums", data).el);
           },
           error: function(){ console.log(attributes); },
       });
@@ -220,7 +220,7 @@ app.Router = Backbone.Router.extend({
       url: albumModel.urlRoot + objectId + "/pictures",
       dataType: "json",
       success: function(data) {
-        $('#main').html(new app.ListAlbumPictures().render(data).el);
+        $('#main').html(new app.ListAlbumPictures(objectId, data).render().el);
       },
       error: function(data) {
         Backbone.trigger('flash', { message: data.responseJSON.error, type: 'warning' });

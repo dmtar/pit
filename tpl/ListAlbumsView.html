@@ -1,14 +1,19 @@
 <div class="well">
+  <h2> <%=title%> </h2>
+  <hr/>
   <% _.each(albums, function(album){ %>
   <div class="list-group">
     <a href="#album/<%= _.escape(album.id) %>/pictures" class="list-group-item active">
       <p class="list-group-item-text pull-right"><%= _.escape(album.location.name) %></p>
       <h2 class="list-group-item-heading"><%= _.escape(album.name) %></h2>
-      <p class="list-group-item-text pull-right"><span class="label label-info">photos: <%= _.escape(album.num_pictures) %></span></p>
-      <span class="list-group-item-text albumListingTags">
+      <p class="list-group-item-text pull-right"></p>
+      <p class="list-group-item-text pull-right"><%=new Date(album.date_range.start).toDateString() %> - <%= new Date(album.date_range.end).toDateString()  %></p>
+      <span class="list-group-item-text">
+        <span class="label label-info"><%= _.escape(album.num_pictures) %></span>
         <%album.tags.forEach(function(el){%>
           <span class="label label-default">
-            <%=el%> | <%=_.find(album.statistics, function(s) { return s.id == el}).count%>
+            <% stat = _.find(album.statistics, function(s) { return s.id == el}) || {count: 0} %>
+            <%=el%> | <%=stat.count%>
           </span>
         <%});%>
       </span>
