@@ -82,7 +82,8 @@ app.PictureViewView = Backbone.View.extend({
         Backbone.trigger('flash', { message: "Liked!", type: 'success' });
       },
       error: function(data) {
-        Backbone.trigger('flash', { message: data.error, type: 'danger' });
+        console.log(data);
+        Backbone.trigger('flash', { message: data.responseJSON.error, type: 'danger' });
       }
     });
   },
